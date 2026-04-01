@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>تقييم الأصناف - مشتل نوارة</title>
+  <title>تقييم أصناف مشتل نوارة</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -61,13 +61,6 @@
       box-shadow: var(--shadow);
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      align-items: start;
-    }
-
     .full-grid {
       display: grid;
       gap: 18px;
@@ -82,9 +75,7 @@
       margin-bottom: 14px;
     }
 
-    h2, h3 {
-      margin: 0;
-    }
+    h2, h3 { margin: 0; }
 
     .hint {
       color: var(--muted);
@@ -112,7 +103,7 @@
       font-weight: 700;
     }
 
-    input, textarea, select {
+    input, textarea {
       width: 100%;
       border: 1px solid var(--border);
       border-radius: 14px;
@@ -130,7 +121,7 @@
       line-height: 1.8;
     }
 
-    input:focus, textarea:focus, select:focus {
+    input:focus, textarea:focus {
       border-color: var(--primary);
       box-shadow: 0 0 0 4px rgba(15,118,110,0.1);
     }
@@ -220,6 +211,7 @@
 
     .stat-box strong {
       font-size: 22px;
+      word-break: break-word;
     }
 
     .varieties-grid {
@@ -334,6 +326,7 @@
       border: 1px solid var(--border);
       background: #fff;
       font-weight: 800;
+      cursor: pointer;
     }
 
     .star-btn.active {
@@ -374,7 +367,7 @@
     .hidden { display: none !important; }
 
     @media (max-width: 980px) {
-      .grid, .stats { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 720px) {
@@ -390,31 +383,9 @@
     <div class="header">
       <h1>تقييم أصناف مشتل نوارة</h1>
       <p>
-        نسخة مرتبطة بـ Supabase لتسجيل دخول الموظفين والمدراء، عرض الأصناف، حفظ التقييمات،
-        وإظهار لوحة متابعة للمدير توضح من قام بالتقييم والتعليق.
+        نظام تسجيل دخول وتقييم أصناف مرتبط بـ Supabase. الموظف يقيّم الصنف،
+        والمدير يطلع على كل التقييمات وأسماء من قام بها.
       </p>
-    </div>
-
-    <div id="setupCard" class="card auth-wrap" style="margin-bottom:18px; display:none;">
-      <div class="title-row">
-        <h2>إعداد الربط</h2>
-      </div>
-      <div class="hint">أدخل رابط مشروع Supabase و مفتاح Anon مرة واحدة فقط. لا تستخدم Service Role key.</div>
-      <div id="setupMessage"></div>
-      <div class="form-grid" style="margin-top:14px;">
-        <div class="field full">
-          <label for="supabaseUrl">Supabase Project URL</label>
-          <input id="supabaseUrl" type="text" placeholder="https://your-project.supabase.co" />
-        </div>
-        <div class="field full">
-          <label for="supabaseAnonKey">Supabase Anon Key</label>
-          <input id="supabaseAnonKey" type="text" placeholder="ضع المفتاح هنا" />
-        </div>
-      </div>
-      <div class="actions" style="margin-top:16px;">
-        <button class="btn-primary" id="saveSetupBtn">حفظ الإعدادات</button>
-        <button class="btn-secondary" id="testSetupBtn">اختبار الاتصال</button>
-      </div>
     </div>
 
     <div id="authSection" class="card auth-wrap">
@@ -434,7 +405,7 @@
         </div>
       </div>
       <div class="actions" style="margin-top:16px;">
-        <button class="btn-primary" id="loginBtn">دخول</button>
+        <button class="btn-primary" id="loginBtn" type="button">دخول</button>
       </div>
     </div>
 
@@ -447,8 +418,8 @@
           </div>
           <div class="actions">
             <div id="userPill" class="user-pill"></div>
-            <button class="btn-secondary" id="refreshBtn">تحديث البيانات</button>
-            <button class="btn-danger" id="logoutBtn">تسجيل الخروج</button>
+            <button class="btn-secondary" id="refreshBtn" type="button">تحديث البيانات</button>
+            <button class="btn-danger" id="logoutBtn" type="button">تسجيل الخروج</button>
           </div>
         </div>
         <div class="stats">
@@ -463,7 +434,7 @@
         <div class="title-row">
           <h2>تقييم الأصناف</h2>
         </div>
-        <div class="hint">الموظف يرى الأصناف ويقيّمها. المدير كذلك يستطيع التقييم بالإضافة إلى الاطلاع على لوحة النتائج.</div>
+        <div class="hint">المدير والموظف يقدرون يقيمون الأصناف من هنا.</div>
         <div id="employeeMessage"></div>
         <div id="varietiesWrap" class="varieties-grid"></div>
       </div>
@@ -482,27 +453,24 @@
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-    const CONFIG_KEY = 'nawarah_eval_supabase_config_v2';
+    const SUPABASE_URL = 'https://epqgayhsmnqbfdliqhil.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_0TKEiHetpDjyrRdjFdKu6Q_cAwFkWC7';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let supabase = null;
     let currentUser = null;
     let currentProfile = null;
     let varieties = [];
     let evaluations = [];
 
-    const setupCard = document.getElementById('setupCard');
     const authSection = document.getElementById('authSection');
     const appSection = document.getElementById('appSection');
     const employeeSection = document.getElementById('employeeSection');
     const managerSection = document.getElementById('managerSection');
 
-    const setupMessage = document.getElementById('setupMessage');
     const authMessage = document.getElementById('authMessage');
     const employeeMessage = document.getElementById('employeeMessage');
     const managerMessage = document.getElementById('managerMessage');
 
-    const supabaseUrlInput = document.getElementById('supabaseUrl');
-    const supabaseAnonKeyInput = document.getElementById('supabaseAnonKey');
     const loginEmailInput = document.getElementById('loginEmail');
     const loginPasswordInput = document.getElementById('loginPassword');
 
@@ -514,58 +482,31 @@
       target.innerHTML = '';
     }
 
-    function saveConfig() {
-      const config = {
-        url: supabaseUrlInput.value.trim(),
-        anonKey: supabaseAnonKeyInput.value.trim()
-      };
-      localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
-      buildClient();
-      showBox(setupMessage, 'ok', 'تم حفظ الإعدادات محليًا.');
+    function escapeHtml(text) {
+      return String(text ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
 
-    function loadConfig() {
-      try {
-        const config = JSON.parse(localStorage.getItem(CONFIG_KEY) || '{}');
-        supabaseUrlInput.value = config.url || '';
-        supabaseAnonKeyInput.value = config.anonKey || '';
-      } catch {}
-    }
-
-    function buildClient() {
-  supabase = createClient(
-    "https://epqgayhsmnqbfdliqhil.supabase.co",
-    "sb_publishable_0TKEiHetpDjyrRdjFdKu6Q_cAwFkWC7"
-  );
-}
-    }
-
-    async function testConnection() {
-      if (!supabase) {
-        showBox(setupMessage, 'err', 'أدخل البيانات أولًا ثم احفظ الإعدادات.');
-        return;
-      }
-      try {
-        const { error } = await supabase.from('profiles').select('id', { head: true, count: 'exact' });
-        if (error) throw error;
-        showBox(setupMessage, 'ok', 'الاتصال ناجح.');
-      } catch (error) {
-        showBox(setupMessage, 'err', `فشل الاتصال: ${escapeHtml(error.message || 'Unknown error')}`);
-      }
+    async function getCurrentSessionUser() {
+      const { data, error } = await supabase.auth.getUser();
+      if (error) throw error;
+      return data.user || null;
     }
 
     async function login() {
       clearBox(authMessage);
-      if (!supabase) {
-        showBox(authMessage, 'err', 'احفظ إعدادات Supabase أولًا.');
-        return;
-      }
       const email = loginEmailInput.value.trim();
       const password = loginPasswordInput.value.trim();
+
       if (!email || !password) {
         showBox(authMessage, 'err', 'أدخل الإيميل وكلمة المرور.');
         return;
       }
+
       try {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -577,19 +518,17 @@
     }
 
     async function logout() {
-      if (supabase) await supabase.auth.signOut();
+      await supabase.auth.signOut();
       currentUser = null;
       currentProfile = null;
-      appSection.classList.add('hidden');
+      evaluations = [];
       authSection.classList.remove('hidden');
+      appSection.classList.add('hidden');
       employeeSection.classList.add('hidden');
       managerSection.classList.add('hidden');
-    }
-
-    async function getCurrentSessionUser() {
-      if (!supabase) return null;
-      const { data } = await supabase.auth.getUser();
-      return data.user || null;
+      clearBox(authMessage);
+      clearBox(employeeMessage);
+      clearBox(managerMessage);
     }
 
     async function loadProfile() {
@@ -598,6 +537,7 @@
         .select('*')
         .eq('id', currentUser.id)
         .single();
+
       if (error) throw error;
       currentProfile = data;
     }
@@ -607,6 +547,7 @@
         .from('varieties')
         .select('*')
         .order('visit_date', { ascending: false, nullsFirst: false });
+
       if (error) throw error;
       varieties = data || [];
     }
@@ -645,21 +586,13 @@
       document.getElementById('userMetaText').textContent = `المستخدم الحالي: ${currentProfile.email} — الصلاحية: ${currentProfile.role}`;
     }
 
-    function escapeHtml(text) {
-      return String(text ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
-
     function getExistingEvaluation(varietyId) {
       return evaluations.find(e => e.variety_id === varietyId && e.evaluator_id === currentUser.id);
     }
 
     function renderVarieties() {
       const wrap = document.getElementById('varietiesWrap');
+
       if (!varieties.length) {
         wrap.innerHTML = '<div class="empty">لا توجد أصناف مضافة حتى الآن.</div>';
         return;
@@ -668,6 +601,7 @@
       wrap.innerHTML = varieties.map(v => {
         const existing = getExistingEvaluation(v.id);
         const mediaItems = Array.isArray(v.media) ? v.media : [];
+
         return `
           <div class="variety-card">
             <div class="variety-head">
@@ -689,22 +623,22 @@
                         ${isVideo
                           ? `<video controls preload="metadata"><source src="${item.url}" type="${item.type || ''}"></video>`
                           : `<img src="${item.url}" alt="media" />`}
-                        <a href="${item.url}" target="_blank">فتح الملف</a>
+                        <a href="${item.url}" target="_blank" rel="noopener noreferrer">فتح الملف</a>
                       </div>
                     `;
                   }).join('')}
                 </div>
               ` : '<div class="empty">لا توجد صور أو فيديو.</div>'}
-              <div class="evaluation-box">
+              <div class="evaluation-box" data-box-variety-id="${v.id}" data-selected-score="${existing?.score || ''}">
                 <strong>تقييم الصنف</strong>
-                <div class="star-row" data-stars-for="${v.id}">
+                <div class="star-row">
                   ${[1,2,3,4,5].map(n => `
                     <button type="button" class="star-btn ${existing?.score === n ? 'active' : ''}" data-variety-id="${v.id}" data-score="${n}">${n}</button>
                   `).join('')}
                 </div>
                 <textarea id="comment_${v.id}" placeholder="اكتب تعليقك على هذا الصنف...">${escapeHtml(existing?.comment || '')}</textarea>
                 <div class="actions">
-                  <button class="btn-primary" onclick="window.saveEvaluation('${v.id}')">حفظ التقييم</button>
+                  <button class="btn-primary" type="button" onclick="window.saveEvaluation('${v.id}')">حفظ التقييم</button>
                   ${existing ? `<span class="badge">تم حفظ تقييم سابق</span>` : ''}
                 </div>
               </div>
@@ -719,22 +653,18 @@
           const score = Number(this.dataset.score);
           document.querySelectorAll(`button[data-variety-id="${varietyId}"]`).forEach(x => x.classList.remove('active'));
           this.classList.add('active');
-          this.closest('.evaluation-box').dataset.selectedScore = score;
+          const box = document.querySelector(`[data-box-variety-id="${varietyId}"]`);
+          if (box) box.dataset.selectedScore = String(score);
         });
-      });
-
-      varieties.forEach(v => {
-        const existing = getExistingEvaluation(v.id);
-        const box = document.querySelector(`button[data-variety-id="${v.id}"]`)?.closest('.evaluation-box');
-        if (box) box.dataset.selectedScore = existing?.score || '';
       });
     }
 
     async function saveEvaluation(varietyId) {
       clearBox(employeeMessage);
-      const box = document.querySelector(`button[data-variety-id="${varietyId}"]`)?.closest('.evaluation-box');
+
+      const box = document.querySelector(`[data-box-variety-id="${varietyId}"]`);
       const selectedScore = Number(box?.dataset.selectedScore || 0);
-      const comment = document.getElementById(`comment_${varietyId}`).value.trim();
+      const comment = document.getElementById(`comment_${varietyId}`)?.value.trim() || '';
 
       if (!selectedScore) {
         showBox(employeeMessage, 'err', 'اختر درجة التقييم أولًا.');
@@ -743,6 +673,7 @@
 
       try {
         const existing = getExistingEvaluation(varietyId);
+
         if (existing) {
           const { error } = await supabase
             .from('evaluations')
@@ -821,6 +752,7 @@
       renderStats();
       employeeSection.classList.remove('hidden');
       renderVarieties();
+
       if (currentProfile.role === 'manager') {
         managerSection.classList.remove('hidden');
         await renderManagerTable();
@@ -833,10 +765,11 @@
       try {
         currentUser = currentUser || await getCurrentSessionUser();
         if (!currentUser) {
-          appSection.classList.add('hidden');
           authSection.classList.remove('hidden');
+          appSection.classList.add('hidden');
           return;
         }
+
         await loadProfile();
         authSection.classList.add('hidden');
         appSection.classList.remove('hidden');
@@ -848,25 +781,19 @@
       }
     }
 
-    document.getElementById('saveSetupBtn').addEventListener('click', saveConfig);
-    document.getElementById('testSetupBtn').addEventListener('click', async () => {
-      buildClient();
-      await testConnection();
-    });
     document.getElementById('loginBtn').addEventListener('click', login);
     document.getElementById('logoutBtn').addEventListener('click', logout);
     document.getElementById('refreshBtn').addEventListener('click', refreshData);
-
     window.saveEvaluation = saveEvaluation;
 
-    loadConfig();
-    buildClient();
-    if (supabase) {
-      getCurrentSessionUser().then(user => {
-        currentUser = user;
-        if (currentUser) bootApp();
-      });
-    }
+    supabase.auth.onAuthStateChange(async (_event, session) => {
+      currentUser = session?.user || null;
+      if (currentUser) {
+        await bootApp();
+      }
+    });
+
+    bootApp();
   </script>
 </body>
 </html>
