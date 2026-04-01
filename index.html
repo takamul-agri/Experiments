@@ -6,7 +6,7 @@
   <title>تسجيل الدخول - التكامل الوطنية للزراعة نظام تقييم الأصناف</title>
   <style>
     :root {
-      --bg: #f3f6fa;
+      --bg: #ffffff;
       --card: #ffffff;
       --text: #1f2937;
       --muted: #6b7280;
@@ -31,7 +31,7 @@
     body {
       margin: 0;
       font-family: Tahoma, Arial, sans-serif;
-      background: linear-gradient(180deg, #f8fbfd 0%, #edf3f7 100%);
+      background: var(--bg);
       color: var(--text);
     }
 
@@ -348,11 +348,10 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>نظام تقييم أصناف بذور التجارب</h1>
-      <p>
+      <h1 id="mainHeaderTitle">نظام تقييم أصناف بذور التجارب</h1>
+      <p id="mainHeaderText">
         نظام تسجيل دخول مخصص للموظفين<br>
-        في حال تعذر عليك تسجيل الدخول تواصل مع<br>
-        k.shabib@altakamul.com.sa
+        <span id="loginHelpText">في حال تعذر عليك تسجيل الدخول تواصل مع k.shabib@altakamul.com.sa</span>
       </p>
     </div>
 
@@ -474,6 +473,10 @@
     const authMessage = document.getElementById('authMessage');
     const appMessage = document.getElementById('appMessage');
 
+    const mainHeaderTitle = document.getElementById('mainHeaderTitle');
+    const mainHeaderText = document.getElementById('mainHeaderText');
+    const loginHelpText = document.getElementById('loginHelpText');
+
     function showBox(target, type, message) {
       target.innerHTML = `<div class="alert ${type}">${message}</div>`;
     }
@@ -515,6 +518,20 @@
       } else {
         adminAddUserBtn.classList.add('hidden');
       }
+    }
+
+    function updateTopHeaderForAuth() {
+      mainHeaderTitle.textContent = 'نظام تقييم أصناف بذور التجارب';
+      mainHeaderText.innerHTML = `
+        نظام تسجيل دخول مخصص للموظفين<br>
+        <span id="loginHelpText">في حال تعذر عليك تسجيل الدخول تواصل مع k.shabib@altakamul.com.sa</span>
+      `;
+    }
+
+    function updateTopHeaderForApp() {
+      const displayName = currentProfile?.full_name || currentUser?.email || 'المستخدم';
+      mainHeaderTitle.textContent = `مرحباً بك يا ${displayName}`;
+      mainHeaderText.textContent = 'تم تسجيل الدخول بنجاح';
     }
 
     async function withTimeout(promise, ms, label) {
@@ -617,6 +634,7 @@
       const displayName = currentProfile?.full_name || currentUser?.email || 'المستخدم';
       document.getElementById('welcomeTitle').textContent = `مرحباً بك يا ${displayName}`;
 
+      updateTopHeaderForApp();
       toggleAdminButton();
     }
 
@@ -630,6 +648,7 @@
       authSection.classList.remove('hidden');
       appSection.classList.add('hidden');
       adminAddUserBtn.classList.add('hidden');
+      updateTopHeaderForAuth();
     }
 
     async function forceLogoutDueToTimeout() {
