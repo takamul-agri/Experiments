@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تقرير تجارب مشتل نوارة - نسخة أونلاين</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #0f766e;
+      --primary-2: #115e59;
+      --border: #dbe3ea;
+      --danger: #b91c1c;
+      --warn: #92400e;
+      --shadow: 0 10px 30px rgba(0,0,0,0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Tahoma, Arial, sans-serif;
+      background: linear-gradient(180deg, #f7fafc 0%, #eef4f8 100%);
+      color: var(--text);
+    }
+
+    .container { width: min(1280px, calc(100% - 24px)); margin: 24px auto 40px; }
+    .header {
+      background: linear-gradient(135deg, #0f766e, #134e4a);
+      color: #fff;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+    .header h1 { margin: 0 0 10px; font-size: clamp(24px, 3vw, 38px); }
+    .header p { margin: 0; color: rgba(255,255,255,0.9); line-height: 1.8; }
+
+    .grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 18px; align-items: start; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+    .card h2 { margin: 0 0 14px; font-size: 20px; }
+    .hint { color: var(--muted); font-size: 14px; line-height: 1.8; margin-bottom: 14px; }
+
+    .alert {
+      padding: 12px 14px;
+      border-radius: 14px;
+      margin-bottom: 12px;
+      line-height: 1.8;
+      font-size: 14px;
+    }
+    .alert.warn { background: #fff7ed; color: var(--warn); border: 1px solid #fed7aa; }
+    .alert.ok { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+    .alert.err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .field { display: flex; flex-direction: column; gap: 8px; }
+    .field.full { grid-column: 1 / -1; }
+    label { font-size: 14px; font-weight: 700; }
+
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+      outline: none;
+      transition: 0.2s ease;
+    }
+    textarea { min-height: 130px; resize: vertical; line-height: 1.8; }
+    input:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(15,118,110,0.1);
+    }
+
+    .upload-box {
+      border: 2px dashed #9db4c0;
+      border-radius: 18px;
+      padding: 20px;
+      text-align: center;
+      background: #f9fcfd;
+    }
+    .upload-box p { margin: 0 0 10px; color: var(--muted); line-height: 1.7; }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    button, .btn-like {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-2); }
+    .btn-secondary { background: #eef7f6; color: var(--primary-2); border: 1px solid #cfe7e4; }
+    .btn-danger { background: #fff5f5; color: var(--danger); border: 1px solid #fecaca; }
+
+    .mini-list { display: grid; gap: 12px; margin-top: 14px; max-height: 350px; overflow: auto; padding-inline-end: 4px; }
+    .mini-item { border: 1px solid var(--border); border-radius: 16px; padding: 14px; background: #fbfdff; }
+    .mini-top { display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-bottom: 8px; }
+    .mini-title { font-weight: 800; font-size: 16px; }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px; color: var(--muted); font-size: 13px; }
+    .badge { background: #eef7f6; color: var(--primary-2); padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+
+    .results-toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+    .results { display: grid; gap: 16px; }
+    .report-card { border: 1px solid var(--border); border-radius: 22px; overflow: hidden; background: #fff; box-shadow: var(--shadow); }
+    .report-head { padding: 18px; background: linear-gradient(135deg, #f3fbfa, #eef5f8); border-bottom: 1px solid var(--border); }
+    .report-head h3 { margin: 0 0 10px; font-size: 24px; }
+    .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .info-box { border: 1px solid var(--border); border-radius: 16px; padding: 12px; background: #fff; }
+    .info-box span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .info-box strong { line-height: 1.7; word-break: break-word; }
+    .report-body { padding: 18px; }
+    .notes {
+      margin-bottom: 16px;
+      line-height: 1.9;
+      white-space: pre-wrap;
+      background: #fbfdff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+    .media-card { border: 1px solid var(--border); border-radius: 18px; overflow: hidden; background: #fff; }
+    .media-card img, .media-card video {
+      width: 100%; height: 220px; object-fit: cover; display: block; background: #000;
+    }
+    .media-actions { display: flex; gap: 8px; padding: 10px; flex-wrap: wrap; }
+    .empty { text-align: center; color: var(--muted); padding: 28px; border: 1px dashed var(--border); border-radius: 18px; background: #fafcfe; }
+    .footer-note { margin-top: 14px; color: var(--muted); line-height: 1.8; font-size: 14px; }
+    .search-box { flex: 1; min-width: 220px; }
+    .loader { display: none; margin-top: 10px; color: var(--primary-2); font-weight: 700; }
+    .loader.show { display: block; }
+    code.inline { background: #f3f4f6; padding: 2px 6px; border-radius: 6px; }
+
+    @media (max-width: 960px) {
+      .grid, .info-grid { grid-template-columns: 1fr; }
+      .info-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .form-grid, .info-grid { grid-template-columns: 1fr; }
+      .container { width: min(100% - 16px, 1280px); }
+      .header, .card, .report-head, .report-body { padding: 14px; }
+    }
+    @media print {
+      body { background: #fff; }
+      .header, .left-panel, .results-toolbar, .media-actions, .footer-note, .setup-card { display: none !important; }
+      .container { width: 100%; margin: 0; }
+      .report-card { box-shadow: none; page-break-inside: avoid; margin-bottom: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>تقرير تجارب مشتل نوارة</h1>
+      <p>
+        نسخة أونلاين مربوطة بـ Supabase بحيث ترفع الصور والفيديو على التخزين السحابي،
+        وتحفظ بيانات الأصناف في قاعدة بيانات، وتفتح نفس التقرير من أي جهاز.
+      </p>
+    </div>
+
+    <div class="card setup-card" style="margin-bottom:18px;">
+      <h2>إعداد الربط السحابي</h2>
+      <div class="hint">
+        أول مرة فقط: ضع بيانات مشروع Supabase هنا. بعدها تُحفظ في المتصفح.
+        استخدم <code class="inline">Anon / Publishable key</code> فقط، وليس Service Role key.
+      </div>
+      <div id="setupMessage" class="alert warn">لم يتم ربط النظام بمشروع Supabase بعد.</div>
+      <div class="form-grid">
+        <div class="field">
+          <label for="supabaseUrl">Supabase Project URL</label>
+          <input id="supabaseUrl" type="text" placeholder="https://your-project.supabase.co" />
+        </div>
+        <div class="field">
+          <label for="supabaseAnonKey">Supabase Anon / Publishable Key</label>
+          <input id="supabaseAnonKey" type="text" placeholder="ضع المفتاح هنا" />
+        </div>
+        <div class="field">
+          <label for="supabaseTable">اسم الجدول</label>
+          <input id="supabaseTable" type="text" value="nursery_reports" />
+        </div>
+        <div class="field">
+          <label for="supabaseBucket">اسم Bucket للملفات</label>
+          <input id="supabaseBucket" type="text" value="nursery-media" />
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn-primary" id="saveSetupBtn">حفظ الإعدادات</button>
+        <button class="btn-secondary" id="testConnectionBtn">اختبار الاتصال</button>
+      </div>
+      <div class="footer-note">
+        لازم يكون عندك جدول وباكت عام (Public Bucket) بنفس الأسماء الموجودة هنا أو تغيّرها بما يناسب مشروعك.
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="left-panel">
+        <div class="card">
+          <h2>إضافة صنف جديد</h2>
+          <div class="hint">املأ البيانات، أضف الصور أو الفيديو، ثم اضغط <strong>حفظ الصنف</strong>.</div>
+          <div id="formMessage"></div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="varietyName">اسم الصنف</label>
+              <input id="varietyName" type="text" placeholder="مثال: باذنجان E030" />
+            </div>
+            <div class="field">
+              <label for="plantingType">نوع الزراعة</label>
+              <input id="plantingType" type="text" placeholder="مثال: بيت محمي / حقل مفتوح" />
+            </div>
+            <div class="field">
+              <label for="visitDate">تاريخ الزيارة</label>
+              <input id="visitDate" type="date" />
+            </div>
+            <div class="field">
+              <label for="producerCompany">الشركة المنتجة</label>
+              <input id="producerCompany" type="text" placeholder="اسم الشركة المنتجة" />
+            </div>
+            <div class="field full">
+              <label for="reportNotes">تقرير الصنف / الملاحظات</label>
+              <textarea id="reportNotes" placeholder="اكتب ملاحظاتك هنا: قوة النمو، العقد، التبكير، التجانس، الملاحظات العامة..."></textarea>
+            </div>
+            <div class="field full">
+              <label>صور الصنف / فيديوهات الصنف</label>
+              <div class="upload-box">
+                <p>ارفع الصور أو الفيديوهات الخاصة بالصنف الحالي فقط</p>
+                <input id="mediaFiles" type="file" accept="image/*,video/*" multiple />
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn-primary" id="saveBtn">حفظ الصنف</button>
+            <button class="btn-secondary" id="resetBtn" type="button">تفريغ الحقول</button>
+            <button class="btn-secondary" id="showResultsBtn" type="button">عرض النتائج</button>
+          </div>
+          <div id="saveLoader" class="loader">جارٍ الرفع والحفظ ...</div>
+        </div>
+
+        <div class="card" style="margin-top:18px;">
+          <h2>الأصناف المحفوظة</h2>
+          <div class="hint">البيانات هنا تُسحب من السحابة، لذلك ستظهر من أي جهاز بعد الربط بنفس المشروع.</div>
+          <div id="savedList" class="mini-list"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h2>إدارة التقرير</h2>
+          <div class="actions">
+            <button class="btn-secondary" id="refreshCloudBtn">تحديث من السحابة</button>
+            <button class="btn-secondary" id="printBtn">طباعة / PDF</button>
+          </div>
+          <div class="footer-note">
+            هذه النسخة تحفظ الأصناف في قاعدة البيانات، والملفات في التخزين السحابي.
+            بعد النشر على GitHub Pages، افتح نفس الرابط من أي جهاز وسيظهر نفس المحتوى.
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:18px;">
+          <h2>عرض النتائج</h2>
+          <div class="results-toolbar">
+            <input id="searchInput" class="search-box" type="text" placeholder="ابحث باسم الصنف أو الشركة" />
+            <button class="btn-primary" id="refreshResultsBtn">تحديث العرض</button>
+          </div>
+          <div id="results" class="results">
+            <div class="empty">لا توجد أصناف مضافة حتى الآن.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+    const CONFIG_KEY = 'nawarah_supabase_config_v1';
+    let reportItems = [];
+    let editingId = null;
+    let supabase = null;
+    let config = null;
+
+    const setupMessage = document.getElementById('setupMessage');
+    const formMessage = document.getElementById('formMessage');
+    const saveLoader = document.getElementById('saveLoader');
+    const supabaseUrlInput = document.getElementById('supabaseUrl');
+    const supabaseAnonKeyInput = document.getElementById('supabaseAnonKey');
+    const supabaseTableInput = document.getElementById('supabaseTable');
+    const supabaseBucketInput = document.getElementById('supabaseBucket');
+
+    const varietyName = document.getElementById('varietyName');
+    const plantingType = document.getElementById('plantingType');
+    const visitDate = document.getElementById('visitDate');
+    const producerCompany = document.getElementById('producerCompany');
+    const reportNotes = document.getElementById('reportNotes');
+    const mediaFiles = document.getElementById('mediaFiles');
+    const savedList = document.getElementById('savedList');
+    const results = document.getElementById('results');
+    const searchInput = document.getElementById('searchInput');
+
+    function uid() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    }
+
+    function escapeHtml(text) {
+      return String(text ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function escapeAttr(text) {
+      return String(text ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function showBox(element, type, message) {
+      element.innerHTML = `<div class="alert ${type}">${message}</div>`;
+    }
+
+    function showSetup(type, message) {
+      setupMessage.className = `alert ${type}`;
+      setupMessage.innerHTML = message;
+    }
+
+    function getConfig() {
+      try {
+        const raw = localStorage.getItem(CONFIG_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function saveConfig() {
+      const value = {
+        url: supabaseUrlInput.value.trim(),
+        anonKey: supabaseAnonKeyInput.value.trim(),
+        table: supabaseTableInput.value.trim() || 'nursery_reports',
+        bucket: supabaseBucketInput.value.trim() || 'nursery-media'
+      };
+      localStorage.setItem(CONFIG_KEY, JSON.stringify(value));
+      config = value;
+      createSupabaseClient();
+      showSetup('ok', 'تم حفظ الإعدادات محليًا. الآن اختبر الاتصال أو ابدأ الاستخدام.');
+    }
+
+    function loadConfigInputs() {
+      const current = getConfig();
+      if (!current) return;
+      supabaseUrlInput.value = current.url || '';
+      supabaseAnonKeyInput.value = current.anonKey || '';
+      supabaseTableInput.value = current.table || 'nursery_reports';
+      supabaseBucketInput.value = current.bucket || 'nursery-media';
+      config = current;
+    }
+
+    function createSupabaseClient() {
+      if (!config?.url || !config?.anonKey) {
+        supabase = null;
+        return;
+      }
+      supabase = createClient(config.url, config.anonKey);
+    }
+
+    async function testConnection() {
+      if (!supabase) {
+        showSetup('err', 'أدخل رابط المشروع والمفتاح أولاً ثم اضغط حفظ الإعدادات.');
+        return;
+      }
+      try {
+        const { error } = await supabase.from(config.table).select('id', { count: 'exact', head: true });
+        if (error) throw error;
+        showSetup('ok', 'الاتصال ناجح. الجدول متاح والنسخة الأونلاين جاهزة.');
+        await fetchItems();
+      } catch (error) {
+        showSetup('err', `فشل الاتصال: ${escapeHtml(error.message || 'Unknown error')}`);
+      }
+    }
+
+    function validateForm() {
+      if (!supabase) {
+        showBox(formMessage, 'err', 'يجب إعداد الربط السحابي أولاً.');
+        return false;
+      }
+      if (!varietyName.value.trim()) {
+        showBox(formMessage, 'err', 'فضلاً اكتب اسم الصنف.');
+        varietyName.focus();
+        return false;
+      }
+      formMessage.innerHTML = '';
+      return true;
+    }
+
+    async function uploadSingleFile(file, reportId) {
+      const extension = file.name.includes('.') ? file.name.split('.').pop() : 'file';
+      const safeName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
+      const path = `${reportId}/${safeName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from(config.bucket)
+        .upload(path, file, { cacheControl: '3600', upsert: false, contentType: file.type || undefined });
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from(config.bucket).getPublicUrl(path);
+      return {
+        name: file.name,
+        type: file.type || '',
+        path,
+        url: data.publicUrl
+      };
+    }
+
+    async function uploadMedia(files, reportId) {
+      const output = [];
+      for (const file of files) {
+        const uploaded = await uploadSingleFile(file, reportId);
+        output.push(uploaded);
+      }
+      return output;
+    }
+
+    async function saveItem() {
+      if (!validateForm()) return;
+
+      const reportId = editingId || uid();
+      const selectedFiles = Array.from(mediaFiles.files || []);
+      saveLoader.classList.add('show');
+
+      try {
+        let existingMedia = [];
+        if (editingId) {
+          const found = reportItems.find(x => x.id === editingId);
+          existingMedia = found?.media || [];
+        }
+
+        const uploadedMedia = selectedFiles.length ? await uploadMedia(selectedFiles, reportId) : [];
+        const payload = {
+          id: reportId,
+          variety_name: varietyName.value.trim(),
+          planting_type: plantingType.value.trim(),
+          visit_date: visitDate.value || null,
+          producer_company: producerCompany.value.trim(),
+          report_notes: reportNotes.value.trim(),
+          media: [...existingMedia, ...uploadedMedia],
+          updated_at: new Date().toISOString()
+        };
+
+        if (!editingId) {
+          payload.created_at = new Date().toISOString();
+        }
+
+        const { error } = await supabase.from(config.table).upsert(payload);
+        if (error) throw error;
+
+        showBox(formMessage, 'ok', 'تم حفظ الصنف في السحابة بنجاح.');
+        resetForm();
+        await fetchItems();
+      } catch (error) {
+        showBox(formMessage, 'err', `تعذر الحفظ: ${escapeHtml(error.message || 'Unknown error')}`);
+      } finally {
+        saveLoader.classList.remove('show');
+      }
+    }
+
+    async function fetchItems() {
+      if (!supabase) {
+        renderSavedList();
+        renderResults();
+        return;
+      }
+      try {
+        const { data, error } = await supabase
+          .from(config.table)
+          .select('*')
+          .order('visit_date', { ascending: false, nullsFirst: false })
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        reportItems = (data || []).map(row => ({
+          id: row.id,
+          varietyName: row.variety_name || '',
+          plantingType: row.planting_type || '',
+          visitDate: row.visit_date || '',
+          producerCompany: row.producer_company || '',
+          reportNotes: row.report_notes || '',
+          media: Array.isArray(row.media) ? row.media : [],
+          createdAt: row.created_at || '',
+          updatedAt: row.updated_at || ''
+        }));
+        renderSavedList();
+        renderResults();
+      } catch (error) {
+        renderSavedList();
+        renderResults();
+        showSetup('err', `تعذر جلب البيانات: ${escapeHtml(error.message || 'Unknown error')}`);
+      }
+    }
+
+    function resetForm() {
+      varietyName.value = '';
+      plantingType.value = '';
+      visitDate.value = '';
+      producerCompany.value = '';
+      reportNotes.value = '';
+      mediaFiles.value = '';
+      editingId = null;
+      document.getElementById('saveBtn').textContent = 'حفظ الصنف';
+    }
+
+    function editItem(id) {
+      const item = reportItems.find(x => x.id === id);
+      if (!item) return;
+      editingId = id;
+      varietyName.value = item.varietyName || '';
+      plantingType.value = item.plantingType || '';
+      visitDate.value = item.visitDate || '';
+      producerCompany.value = item.producerCompany || '';
+      reportNotes.value = item.reportNotes || '';
+      mediaFiles.value = '';
+      document.getElementById('saveBtn').textContent = 'تحديث الصنف';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function deleteItem(id) {
+      const item = reportItems.find(x => x.id === id);
+      if (!item) return;
+      if (!confirm(`هل تريد حذف الصنف: ${item.varietyName} ؟`)) return;
+
+      try {
+        for (const media of (item.media || [])) {
+          if (media.path) {
+            await supabase.storage.from(config.bucket).remove([media.path]);
+          }
+        }
+        const { error } = await supabase.from(config.table).delete().eq('id', id);
+        if (error) throw error;
+        if (editingId === id) resetForm();
+        await fetchItems();
+      } catch (error) {
+        alert(`تعذر حذف الصنف: ${error.message || 'Unknown error'}`);
+      }
+    }
+
+    async function removeMedia(itemId, mediaPath) {
+      const item = reportItems.find(x => x.id === itemId);
+      if (!item) return;
+      if (!confirm('هل تريد حذف هذا الملف؟')) return;
+
+      try {
+        if (mediaPath) {
+          const { error: storageError } = await supabase.storage.from(config.bucket).remove([mediaPath]);
+          if (storageError) throw storageError;
+        }
+
+        const updatedMedia = (item.media || []).filter(m => m.path !== mediaPath);
+        const { error } = await supabase
+          .from(config.table)
+          .update({ media: updatedMedia, updated_at: new Date().toISOString() })
+          .eq('id', itemId);
+
+        if (error) throw error;
+        await fetchItems();
+      } catch (error) {
+        alert(`تعذر حذف الملف: ${error.message || 'Unknown error'}`);
+      }
+    }
+
+    function renderSavedList() {
+      if (!reportItems.length) {
+        savedList.innerHTML = '<div class="empty">لا توجد أصناف محفوظة.</div>';
+        return;
+      }
+
+      savedList.innerHTML = reportItems.map(item => `
+        <div class="mini-item">
+          <div class="mini-top">
+            <div class="mini-title">${escapeHtml(item.varietyName)}</div>
+            <span class="badge">${(item.media || []).length} ملف</span>
+          </div>
+          <div class="meta">
+            <span>نوع الزراعة: ${escapeHtml(item.plantingType || '-')}</span>
+            <span>التاريخ: ${escapeHtml(item.visitDate || '-')}</span>
+            <span>الشركة: ${escapeHtml(item.producerCompany || '-')}</span>
+          </div>
+          <div class="actions" style="margin-top:10px;">
+            <button class="btn-secondary" onclick="window.editItem('${item.id}')">تعديل</button>
+            <button class="btn-danger" onclick="window.deleteItem('${item.id}')">حذف</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderResults() {
+      const query = (searchInput.value || '').trim().toLowerCase();
+      let filtered = [...reportItems];
+
+      if (query) {
+        filtered = filtered.filter(item =>
+          (item.varietyName || '').toLowerCase().includes(query) ||
+          (item.producerCompany || '').toLowerCase().includes(query) ||
+          (item.plantingType || '').toLowerCase().includes(query)
+        );
+      }
+
+      if (!filtered.length) {
+        results.innerHTML = '<div class="empty">لا توجد نتائج مطابقة.</div>';
+        return;
+      }
+
+      results.innerHTML = filtered.map(item => `
+        <div class="report-card">
+          <div class="report-head">
+            <h3>${escapeHtml(item.varietyName)}</h3>
+            <div class="info-grid">
+              <div class="info-box"><span>اسم الصنف</span><strong>${escapeHtml(item.varietyName || '-')}</strong></div>
+              <div class="info-box"><span>نوع الزراعة</span><strong>${escapeHtml(item.plantingType || '-')}</strong></div>
+              <div class="info-box"><span>تاريخ الزيارة</span><strong>${escapeHtml(item.visitDate || '-')}</strong></div>
+              <div class="info-box"><span>الشركة المنتجة</span><strong>${escapeHtml(item.producerCompany || '-')}</strong></div>
+            </div>
+          </div>
+          <div class="report-body">
+            <div class="notes">${escapeHtml(item.reportNotes || 'لا توجد ملاحظات مكتوبة لهذا الصنف.')}</div>
+            ${(item.media && item.media.length) ? `
+              <div class="media-grid">
+                ${item.media.map(media => {
+                  const isVideo = (media.type || '').startsWith('video/');
+                  const preview = isVideo
+                    ? `<video controls preload="metadata"><source src="${media.url}" type="${media.type}"></video>`
+                    : `<img src="${media.url}" alt="${escapeHtml(media.name)}" />`;
+                  return `
+                    <div class="media-card">
+                      ${preview}
+                      <div class="media-actions">
+                        <a class="btn-like btn-secondary" href="${media.url}" download="${escapeAttr(media.name)}">تحميل</a>
+                        <button class="btn-danger" onclick="window.removeMedia('${item.id}','${escapeAttr(media.path || '')}')">حذف الملف</button>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            ` : '<div class="empty">لا توجد صور أو فيديوهات لهذا الصنف.</div>'}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('saveSetupBtn').addEventListener('click', saveConfig);
+    document.getElementById('testConnectionBtn').addEventListener('click', testConnection);
+    document.getElementById('saveBtn').addEventListener('click', saveItem);
+    document.getElementById('resetBtn').addEventListener('click', resetForm);
+    document.getElementById('showResultsBtn').addEventListener('click', () => {
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      renderResults();
+    });
+    document.getElementById('refreshResultsBtn').addEventListener('click', renderResults);
+    document.getElementById('refreshCloudBtn').addEventListener('click', fetchItems);
+    document.getElementById('printBtn').addEventListener('click', () => window.print());
+    searchInput.addEventListener('input', renderResults);
+
+    loadConfigInputs();
+    createSupabaseClient();
+    renderSavedList();
+    renderResults();
+
+    if (supabase) {
+      showSetup('ok', 'تم العثور على إعدادات محفوظة. اختبر الاتصال أو اضغط تحديث من السحابة.');
+      fetchItems();
+    }
+
+    window.editItem = editItem;
+    window.deleteItem = deleteItem;
+    window.removeMedia = removeMedia;
+  </script>
+</body>
+</html>
