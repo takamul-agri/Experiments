@@ -1,62 +1,563 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>إضافة مستخدم</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>إدارة المستخدمين</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #0f766e;
+      --primary-dark: #115e59;
+      --primary-soft: #e7f5f3;
+      --border: #dbe3ea;
+      --danger: #b91c1c;
+      --danger-bg: #fff3f3;
+      --ok: #065f46;
+      --ok-bg: #ecfdf5;
+      --warn: #92400e;
+      --warn-bg: #fff7ed;
+      --shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Tahoma, Arial, sans-serif;
+      background: linear-gradient(180deg, #f8fbfd 0%, #edf3f7 100%);
+      color: var(--text);
+    }
+
+    .container {
+      width: min(1180px, calc(100% - 24px));
+      margin: 22px auto 40px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #0f766e, #134e4a);
+      color: #fff;
+      border-radius: 28px;
+      padding: 28px 26px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 54px);
+      line-height: 1.2;
+    }
+
+    .hero p {
+      margin: 0;
+      color: rgba(255,255,255,0.92);
+      font-size: 17px;
+      line-height: 1.9;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .title-row h2 {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    .hint {
+      color: var(--muted);
+      line-height: 1.9;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    input, select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 16px;
+      font: inherit;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: 0.2s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(15,118,110,0.1);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    button {
+      border: none;
+      border-radius: 16px;
+      padding: 13px 18px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      border: 1px solid #cfe7e4;
+    }
+
+    .btn-danger {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid #fecaca;
+    }
+
+    .pill {
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      border: 1px solid #cfe7e4;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .alert {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.9;
+      border: 1px solid transparent;
+      white-space: pre-wrap;
+    }
+
+    .alert.ok {
+      background: var(--ok-bg);
+      color: var(--ok);
+      border-color: #a7f3d0;
+    }
+
+    .alert.err {
+      background: #fef2f2;
+      color: #991b1b;
+      border-color: #fecaca;
+    }
+
+    .alert.warn {
+      background: var(--warn-bg);
+      color: var(--warn);
+      border-color: #fed7aa;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      overflow: hidden;
+      border-radius: 18px;
+    }
+
+    th, td {
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: right;
+      vertical-align: middle;
+    }
+
+    th {
+      background: #f8fafc;
+      font-size: 13px;
+      color: #334155;
+    }
+
+    .role-badge {
+      display: inline-block;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      font-size: 12px;
+      font-weight: 700;
+      min-width: 82px;
+      text-align: center;
+    }
+
+    .small-input, .small-select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font: inherit;
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .empty-box {
+      text-align: center;
+      color: var(--muted);
+      padding: 24px;
+      border: 1px dashed var(--border);
+      border-radius: 18px;
+      background: #fafcfe;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 860px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .container {
+        width: min(100% - 16px, 1180px);
+      }
+
+      .hero,
+      .card {
+        padding: 16px;
+      }
+
+      .title-row h2 {
+        font-size: 24px;
+      }
+
+      table, thead, tbody, th, td, tr {
+        display: block;
+        width: 100%;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tr {
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        margin-bottom: 12px;
+        overflow: hidden;
+      }
+
+      td::before {
+        content: attr(data-label);
+        display: block;
+        margin-bottom: 6px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <div class="hero">
+      <h1>إدارة المدراء والموظفين</h1>
+      <p>صفحة داخلية لإضافة المستخدمين الجدد وتعديل صلاحياتهم وعرض كل الحسابات بشكل مرتب وواضح.</p>
+    </div>
 
-<h2>إضافة مستخدم جديد</h2>
+    <div class="card">
+      <div class="title-row">
+        <div>
+          <h2>إضافة مستخدم جديد</h2>
+          <div class="hint">أدخل بيانات المدير أو الموظف، ثم اضغط إضافة. هذه النسخة تضيف إلى Auth ثم تحفظ البيانات في profiles.</div>
+        </div>
+        <div class="pill">Manager Panel</div>
+      </div>
 
-<input id="name" placeholder="الاسم"><br><br>
-<input id="email" placeholder="الإيميل"><br><br>
-<input id="password" placeholder="كلمة المرور"><br><br>
+      <div class="grid">
+        <div class="field">
+          <label for="name">الاسم الكامل</label>
+          <input id="name" type="text" placeholder="مثال: الهادي سعيد جازم" />
+        </div>
 
-<select id="role">
-  <option value="employee">موظف</option>
-  <option value="manager">مدير</option>
-</select><br><br>
+        <div class="field">
+          <label for="email">الإيميل</label>
+          <input id="email" type="email" placeholder="example@company.com" />
+        </div>
 
-<button onclick="createUser()">إضافة</button>
+        <div class="field">
+          <label for="password">كلمة المرور</label>
+          <input id="password" type="password" placeholder="أدخل كلمة المرور" />
+        </div>
 
-<p id="msg"></p>
+        <div class="field">
+          <label for="role">الدور</label>
+          <select id="role">
+            <option value="employee">موظف</option>
+            <option value="manager">مدير</option>
+          </select>
+        </div>
+      </div>
 
-<script type="module">
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+      <div class="actions">
+        <button id="createBtn" class="btn-primary" type="button">إضافة المستخدم</button>
+        <button id="refreshBtn" class="btn-secondary" type="button">تحديث القائمة</button>
+      </div>
 
-const supabase = createClient(
-  'https://epqgayhsmnqbfdliqhil.supabase.co',
-  'sb_publishable_0TKEiHetpDjyrRdjFdKu6Q_cAwFkWC7'
-)
+      <div id="msg"></div>
+    </div>
 
-async function createUser() {
-  const name = document.getElementById('name').value
-  const email = document.getElementById('email').value
-  const password = document.getElementById('password').value
-  const role = document.getElementById('role').value
+    <div class="card">
+      <div class="title-row">
+        <div>
+          <h2>قائمة المستخدمين</h2>
+          <div class="hint">تقدر تعدل الاسم والدور من الجدول، ثم تحفظ التعديل. هذه الصفحة تقرأ من جدول profiles.</div>
+        </div>
+      </div>
 
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password
-  })
+      <div id="tableMsg"></div>
+      <div id="usersBox" class="table-wrap"></div>
+    </div>
+  </div>
 
-  if (error) {
-    document.getElementById('msg').innerText = error.message
-    return
-  }
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-  const userId = data.user.id
+    const supabase = createClient(
+      'https://epqgayhsmnqbfdliqhil.supabase.co',
+      'sb_publishable_0TKEiHetpDjyrRdjFdKu6Q_cAwFkWC7'
+    );
 
-  await supabase.from('profiles').insert({
-    id: userId,
-    full_name: name,
-    email: email,
-    role: role
-  })
+    const msg = document.getElementById('msg');
+    const tableMsg = document.getElementById('tableMsg');
+    const usersBox = document.getElementById('usersBox');
+    const createBtn = document.getElementById('createBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
 
-  document.getElementById('msg').innerText = "تم إضافة المستخدم"
-}
-</script>
+    function showBox(target, type, text) {
+      target.innerHTML = `<div class="alert ${type}">${text}</div>`;
+    }
 
+    function clearBox(target) {
+      target.innerHTML = '';
+    }
+
+    function escapeHtml(text) {
+      return String(text ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    async function loadUsers() {
+      clearBox(tableMsg);
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, email, role')
+        .order('full_name', { ascending: true });
+
+      if (error) {
+        showBox(tableMsg, 'err', 'تعذر تحميل المستخدمين: ' + error.message);
+        usersBox.innerHTML = '';
+        return;
+      }
+
+      if (!data || !data.length) {
+        usersBox.innerHTML = `<div class="empty-box">لا يوجد مستخدمون حاليًا.</div>`;
+        return;
+      }
+
+      usersBox.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>الاسم</th>
+              <th>الإيميل</th>
+              <th>الدور</th>
+              <th>المعرف</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.map(user => `
+              <tr>
+                <td data-label="الاسم">
+                  <input class="small-input" id="name_${user.id}" value="${escapeHtml(user.full_name || '')}" />
+                </td>
+                <td data-label="الإيميل">${escapeHtml(user.email || '-')}</td>
+                <td data-label="الدور">
+                  <select class="small-select" id="role_${user.id}">
+                    <option value="employee" ${user.role === 'employee' ? 'selected' : ''}>employee</option>
+                    <option value="manager" ${user.role === 'manager' ? 'selected' : ''}>manager</option>
+                  </select>
+                </td>
+                <td data-label="المعرف">${escapeHtml(user.id)}</td>
+                <td data-label="الإجراءات">
+                  <div class="row-actions">
+                    <button class="btn-secondary" onclick="window.saveUser('${user.id}')">حفظ</button>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    async function createUser() {
+      clearBox(msg);
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const password = document.getElementById('password').value.trim();
+      const role = document.getElementById('role').value;
+
+      if (!name || !email || !password) {
+        showBox(msg, 'err', 'أكمل الاسم والإيميل وكلمة المرور.');
+        return;
+      }
+
+      try {
+        createBtn.disabled = true;
+        createBtn.textContent = 'جاري الإضافة...';
+
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        if (!data.user) {
+          throw new Error('لم يتم إنشاء المستخدم في Auth.');
+        }
+
+        const userId = data.user.id;
+
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: userId,
+            full_name: name,
+            email,
+            role
+          });
+
+        if (profileError) {
+          throw profileError;
+        }
+
+        showBox(msg, 'ok', 'تمت إضافة المستخدم بنجاح.');
+        document.getElementById('name').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('password').value = '';
+        document.getElementById('role').value = 'employee';
+
+        await loadUsers();
+      } catch (error) {
+        showBox(msg, 'err', 'فشل الإضافة: ' + (error.message || 'خطأ غير معروف'));
+      } finally {
+        createBtn.disabled = false;
+        createBtn.textContent = 'إضافة المستخدم';
+      }
+    }
+
+    async function saveUser(userId) {
+      clearBox(tableMsg);
+
+      const name = document.getElementById(`name_${userId}`).value.trim();
+      const role = document.getElementById(`role_${userId}`).value;
+
+      if (!name) {
+        showBox(tableMsg, 'err', 'الاسم لا يمكن أن يكون فارغًا.');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: name,
+          role: role
+        })
+        .eq('id', userId);
+
+      if (error) {
+        showBox(tableMsg, 'err', 'فشل الحفظ: ' + error.message);
+        return;
+      }
+
+      showBox(tableMsg, 'ok', 'تم تحديث المستخدم بنجاح.');
+      await loadUsers();
+    }
+
+    window.saveUser = saveUser;
+
+    createBtn.addEventListener('click', createUser);
+    refreshBtn.addEventListener('click', loadUsers);
+
+    loadUsers();
+  </script>
 </body>
 </html>
