@@ -62,6 +62,13 @@
       line-height: 1.9;
     }
 
+    .hero-actions {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
     .card {
       background: var(--card);
       border: 1px solid var(--border);
@@ -163,10 +170,25 @@
       border: 1px solid #cfe7e4;
     }
 
+    .btn-secondary:hover {
+      background: #dcf0ed;
+    }
+
     .btn-danger {
       background: var(--danger-bg);
       color: var(--danger);
       border: 1px solid #fecaca;
+    }
+
+    .btn-home {
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.28);
+      backdrop-filter: blur(8px);
+    }
+
+    .btn-home:hover {
+      background: rgba(255,255,255,0.22);
     }
 
     .pill {
@@ -320,6 +342,10 @@
     <div class="hero">
       <h1>إدارة المدراء والموظفين</h1>
       <p>صفحة داخلية لإضافة المستخدمين الجدد وتعديل صلاحياتهم وعرض كل الحسابات بشكل مرتب وواضح.</p>
+
+      <div class="hero-actions">
+        <button onclick="goHome()" class="btn-home" type="button">🏠 الرجوع إلى الصفحة الرئيسية</button>
+      </div>
     </div>
 
     <div class="card">
@@ -334,17 +360,17 @@
       <div class="grid">
         <div class="field">
           <label for="name">الاسم الكامل</label>
-          <input id="name" type="text" placeholder="مثال: الهادي سعيد جازم" />
+          <input id="name" type="text" placeholder="ادخل اسم الموظف" />
         </div>
 
         <div class="field">
           <label for="email">الإيميل</label>
-          <input id="email" type="email" placeholder="example@company.com" />
+          <input id="email" type="email" placeholder="example@company.com" autocomplete="off" />
         </div>
 
         <div class="field">
           <label for="password">كلمة المرور</label>
-          <input id="password" type="password" placeholder="أدخل كلمة المرور" />
+          <input id="password" type="password" placeholder="أدخل كلمة المرور" autocomplete="new-password" />
         </div>
 
         <div class="field">
@@ -406,6 +432,18 @@
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
+    }
+
+    function resetForm() {
+      document.getElementById('name').value = '';
+      document.getElementById('email').value = '';
+      document.getElementById('password').value = '';
+      document.getElementById('role').value = 'employee';
+      document.getElementById('name').focus();
+    }
+
+    function goHome() {
+      window.location.href = 'index.html';
     }
 
     async function loadUsers() {
@@ -510,11 +548,7 @@
         }
 
         showBox(msg, 'ok', 'تمت إضافة المستخدم بنجاح.');
-        document.getElementById('name').value = '';
-        document.getElementById('email').value = '';
-        document.getElementById('password').value = '';
-        document.getElementById('role').value = 'employee';
-
+        resetForm();
         await loadUsers();
       } catch (error) {
         showBox(msg, 'err', 'فشل الإضافة: ' + (error.message || 'خطأ غير معروف'));
@@ -553,10 +587,12 @@
     }
 
     window.saveUser = saveUser;
+    window.goHome = goHome;
 
     createBtn.addEventListener('click', createUser);
     refreshBtn.addEventListener('click', loadUsers);
 
+    resetForm();
     loadUsers();
   </script>
 </body>
