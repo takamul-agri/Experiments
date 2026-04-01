@@ -508,27 +508,28 @@
 
     currentUser = data.user;
 
-    // 🔥 تحميل البروفايل بدون تخريب
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', currentUser.id)
-      .maybeSingle();
+    async function login() {
+  clearBox(authMessage);
 
-    if (profileError) throw profileError;
+  const email = loginEmailInput.value.trim();
+  const password = loginPasswordInput.value.trim();
 
-    if (!profile) {
-      showBox(authMessage, 'err', 'المستخدم موجود لكن غير مربوط في profiles');
-      return;
-    }
+  if (!email || !password) {
+    showBox(authMessage, 'err', 'أدخل الإيميل وكلمة المرور.');
+    return;
+  }
 
-    currentProfile = profile;
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
 
-    // 🔥 هنا المفروض ينقلك
-    showBox(authMessage, 'ok', 'تم تسجيل الدخول بنجاح');
+    if (error) throw error;
 
-    document.getElementById('authCard').style.display = 'none';
-    document.getElementById('appContent').style.display = 'block';
+    currentUser = data.user;
+    alert('تم تسجيل الدخول');
+    await bootApp();
 
   } catch (err) {
     showBox(authMessage, 'err', 'تعذر تسجيل الدخول: ' + err.message);
