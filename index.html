@@ -498,24 +498,45 @@
     }
 
     async function login() {
-      clearBox(authMessage);
-      const email = loginEmailInput.value.trim();
-      const password = loginPasswordInput.value.trim();
+  const email = loginEmailInput.value.trim();
+  const password = loginPasswordInput.value.trim();
 
-      if (!email || !password) {
-        showBox(authMessage, 'err', 'أدخل الإيميل وكلمة المرور.');
-        return;
-      }
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
 
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        currentUser = data.user;
-        await bootApp();
-      } catch (error) {
-        showBox(authMessage, 'err', `تعذر تسجيل الدخول: ${escapeHtml(error.message || 'Unknown error')}`);
-      }
+    if (error) throw error;
+
+    currentUser = data.user;
+
+    // 🔥 تحميل البروفايل بدون تخريب
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', currentUser.id)
+      .maybeSingle();
+
+    if (profileError) throw profileError;
+
+    if (!profile) {
+      showBox(authMessage, 'err', 'المستخدم موجود لكن غير مربوط في profiles');
+      return;
     }
+
+    currentProfile = profile;
+
+    // 🔥 هنا المفروض ينقلك
+    showBox(authMessage, 'ok', 'تم تسجيل الدخول بنجاح');
+
+    document.getElementById('authCard').style.display = 'none';
+    document.getElementById('appContent').style.display = 'block';
+
+  } catch (err) {
+    showBox(authMessage, 'err', 'تعذر تسجيل الدخول: ' + err.message);
+  }
+}
 
     async function logout() {
       await supabase.auth.signOut();
