@@ -1,1 +1,62 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>إضافة مستخدم</title>
+</head>
+<body>
 
+<h2>إضافة مستخدم جديد</h2>
+
+<input id="name" placeholder="الاسم"><br><br>
+<input id="email" placeholder="الإيميل"><br><br>
+<input id="password" placeholder="كلمة المرور"><br><br>
+
+<select id="role">
+  <option value="employee">موظف</option>
+  <option value="manager">مدير</option>
+</select><br><br>
+
+<button onclick="createUser()">إضافة</button>
+
+<p id="msg"></p>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+const supabase = createClient(
+  'https://epqgayhsmnqbfdliqhil.supabase.co',
+  'حط_هنا_anon_key'
+)
+
+async function createUser() {
+  const name = document.getElementById('name').value
+  const email = document.getElementById('email').value
+  const password = document.getElementById('password').value
+  const role = document.getElementById('role').value
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password
+  })
+
+  if (error) {
+    document.getElementById('msg').innerText = error.message
+    return
+  }
+
+  const userId = data.user.id
+
+  await supabase.from('profiles').insert({
+    id: userId,
+    full_name: name,
+    email: email,
+    role: role
+  })
+
+  document.getElementById('msg').innerText = "تم إضافة المستخدم"
+}
+</script>
+
+</body>
+</html>
