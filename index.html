@@ -383,14 +383,14 @@
   <div class="container">
     <div class="header">
       <h1>تقييم أصناف بذور التجارب - التكامل الوطنية للزراعة</h1>
-      <p>نظام داخلي لتسجيل الدخول، متابعة الأصناف، وحفظ تقييمات الموظفين والمدراء.</p>
+      <p>يدخل الموظف أو المدير بالإيميل وكلمة المرور المسجلة في Supabase.</p>
     </div>
 
     <div id="authSection" class="card auth-wrap">
       <div class="title-row">
         <h2>تسجيل الدخول</h2>
       </div>
-      <div class="hint">يدخل الموظف أو المدير بالإيميل وكلمة المرور المسجلة في Supabase.</div>
+
       <div id="authMessage"></div>
 
       <div class="form-grid" style="margin-top:14px;">
@@ -477,7 +477,6 @@
 
     const loginEmailInput = document.getElementById('loginEmail');
     const loginPasswordInput = document.getElementById('loginPassword');
-
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const refreshBtn = document.getElementById('refreshBtn');
@@ -530,17 +529,32 @@
         });
 
         if (error) throw error;
-
-        if (!data.user) {
-          throw new Error('تمت المصادقة لكن لم يتم العثور على بيانات المستخدم.');
-        }
+        if (!data.user) throw new Error('تم تسجيل الدخول لكن لم يتم العثور على المستخدم.');
 
         currentUser = data.user;
 
-        showBox(authMessage, 'ok', 'تم تسجيل الدخول بنجاح.');
-        await bootApp();
+        await loadProfile();
+        authSection.classList.add('hidden');
+        appSection.classList.remove('hidden');
+
+        await refreshData();
       } catch (err) {
-        showBox(authMessage, 'err', 'تعذر تسجيل الدخول: ' + escapeHtml(err.message || 'Unknown error'));
+        currentUser = null;
+        currentProfile = null;
+
+        let msg = err?.message || 'حدث خطأ غير معروف';
+
+        if (msg.includes('Invalid login credentials')) {
+          msg = 'بيانات الدخول غير صحيحة.';
+        } else if (msg.includes('Email not confirmed')) {
+          msg = 'الإيميل غير مؤكد في Supabase.';
+        } else if (msg.includes('JSON object requested, multiple (or no) rows returned')) {
+          msg = 'المستخدم مسجل في Auth لكن غير موجود أو مكرر في جدول profiles.';
+        }
+
+        showBox(authMessage, 'err', 'تعذر تسجيل الدخول: ' + escapeHtml(msg));
+        authSection.classList.remove('hidden');
+        appSection.classList.add('hidden');
       } finally {
         setLoginLoading(false);
       }
@@ -550,7 +564,7 @@
       try {
         await supabase.auth.signOut();
       } catch (err) {
-        console.error('Logout error:', err);
+        console.error(err);
       }
 
       currentUser = null;
@@ -568,6 +582,7 @@
       clearBox(managerMessage);
 
       loginPasswordInput.value = '';
+      setLoginLoading(false);
     }
 
     async function loadProfile() {
@@ -578,10 +593,7 @@
         .maybeSingle();
 
       if (error) throw error;
-
-      if (!data) {
-        throw new Error('المستخدم موجود في Auth لكنه غير مربوط بجدول profiles.');
-      }
+      if (!data) throw new Error('المستخدم موجود في Auth لكنه غير مربوط بجدول profiles.');
 
       currentProfile = data;
     }
@@ -631,10 +643,10 @@
     function renderStats() {
       document.getElementById('statVarieties').textContent = String(varieties.length);
       document.getElementById('statEvaluations').textContent = String(evaluations.length);
-      document.getElementById('statRole').textContent = currentProfile.role === 'manager' ? 'مدير' : 'موظف';
-      document.getElementById('statUser').textContent = currentProfile.full_name || currentProfile.email || '-';
-      document.getElementById('userPill').textContent = `${currentProfile.full_name || currentProfile.email} • ${currentProfile.role}`;
-      document.getElementById('userMetaText').textContent = `المستخدم الحالي: ${currentProfile.email || '-'} — الصلاحية: ${currentProfile.role || '-'}`;
+      document.getElementById('statRole').textContent = currentProfile?.role === 'manager' ? 'مدير' : 'موظف';
+      document.getElementById('statUser').textContent = currentProfile?.full_name || currentProfile?.email || '-';
+      document.getElementById('userPill').textContent = `${currentProfile?.full_name || currentProfile?.email || '-'} • ${currentProfile?.role || '-'}`;
+      document.getElementById('userMetaText').textContent = `المستخدم الحالي: ${currentProfile?.email || '-'} — الصلاحية: ${currentProfile?.role || '-'}`;
     }
 
     function getExistingEvaluation(varietyId) {
@@ -781,7 +793,7 @@
     }
 
     async function renderManagerTable() {
-      if (currentProfile.role !== 'manager') return;
+      if (currentProfile?.role !== 'manager') return;
 
       const [allProfiles] = await Promise.all([
         loadAllProfiles(),
@@ -836,7 +848,7 @@
       employeeSection.classList.remove('hidden');
       renderVarieties();
 
-      if (currentProfile.role === 'manager') {
+      if (currentProfile?.role === 'manager') {
         managerSection.classList.remove('hidden');
         await renderManagerTable();
       } else {
@@ -869,6 +881,8 @@
         managerSection.classList.add('hidden');
 
         showBox(authMessage, 'err', `تعذر تحميل الحساب: ${escapeHtml(error.message || 'Unknown error')}`);
+      } finally {
+        setLoginLoading(false);
       }
     }
 
@@ -884,10 +898,6 @@
 
     supabase.auth.onAuthStateChange(async (_event, session) => {
       currentUser = session?.user || null;
-
-      if (currentUser) {
-        await bootApp();
-      }
     });
 
     bootApp();
