@@ -395,7 +395,7 @@
       </p>
     </div>
 
-    <div id="setupCard" class="card auth-wrap" style="margin-bottom:18px;">
+    <div id="setupCard" class="card auth-wrap" style="margin-bottom:18px; display:none;">
       <div class="title-row">
         <h2>إعداد الربط</h2>
       </div>
@@ -533,13 +533,11 @@
     }
 
     function buildClient() {
-      const url = supabaseUrlInput.value.trim();
-      const anonKey = supabaseAnonKeyInput.value.trim();
-      if (!url || !anonKey) {
-        supabase = null;
-        return;
-      }
-      supabase = createClient(url, anonKey);
+  supabase = createClient(
+    "https://epqgayhsmnqbfdliqhil.supabase.co",
+    "sb_publishable_0TKEiHetpDjyrRdjFdKu6Q_cAwFkWC7"
+  );
+}
     }
 
     async function testConnection() {
