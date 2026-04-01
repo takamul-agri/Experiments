@@ -3,19 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>التكامل الوطنية للزراعة - تقييم أصناف بذور التجارب</title>
+  <title>تسجيل الدخول - نظام تقييم الأصناف</title>
   <style>
     :root {
-      --bg: #f4f7fb;
+      --bg: #f3f6fa;
       --card: #ffffff;
       --text: #1f2937;
       --muted: #6b7280;
       --primary: #0f766e;
-      --primary-2: #115e59;
+      --primary-dark: #115e59;
       --border: #dbe3ea;
-      --danger: #b91c1c;
-      --ok: #065f46;
-      --warn: #92400e;
+      --ok-bg: #ecfdf5;
+      --ok-text: #065f46;
+      --ok-border: #a7f3d0;
+      --err-bg: #fef2f2;
+      --err-text: #991b1b;
+      --err-border: #fecaca;
+      --warn-bg: #fff7ed;
+      --warn-text: #9a3412;
+      --warn-border: #fdba74;
       --shadow: 0 10px 28px rgba(0,0,0,0.08);
       --radius: 18px;
     }
@@ -25,12 +31,12 @@
     body {
       margin: 0;
       font-family: Tahoma, Arial, sans-serif;
-      background: linear-gradient(180deg, #f8fbfd 0%, #eef4f8 100%);
+      background: linear-gradient(180deg, #f8fbfd 0%, #edf3f7 100%);
       color: var(--text);
     }
 
     .container {
-      width: min(1280px, calc(100% - 24px));
+      width: min(960px, calc(100% - 24px));
       margin: 24px auto 40px;
     }
 
@@ -50,7 +56,7 @@
 
     .header p {
       margin: 0;
-      color: rgba(255,255,255,0.9);
+      color: rgba(255,255,255,0.92);
       line-height: 1.9;
     }
 
@@ -62,33 +68,32 @@
       box-shadow: var(--shadow);
     }
 
-    .full-grid {
-      display: grid;
-      gap: 18px;
+    .auth-wrap {
+      max-width: 560px;
+      margin: 0 auto;
     }
 
     .title-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
-
-    h2, h3 { margin: 0; }
 
     .hint {
       color: var(--muted);
       font-size: 14px;
       line-height: 1.8;
-      margin-top: 8px;
+      margin-top: 6px;
     }
 
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: 1fr;
       gap: 14px;
+      margin-top: 16px;
     }
 
     .field {
@@ -97,18 +102,16 @@
       gap: 8px;
     }
 
-    .field.full { grid-column: 1 / -1; }
-
     label {
       font-size: 14px;
       font-weight: 700;
     }
 
-    input, textarea {
+    input {
       width: 100%;
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 12px 14px;
+      padding: 14px 16px;
       background: #fff;
       color: var(--text);
       font: inherit;
@@ -116,18 +119,19 @@
       transition: 0.2s ease;
     }
 
-    textarea {
-      min-height: 120px;
-      resize: vertical;
-      line-height: 1.8;
-    }
-
-    input:focus, textarea:focus {
+    input:focus {
       border-color: var(--primary);
       box-shadow: 0 0 0 4px rgba(15,118,110,0.1);
     }
 
-    button, .btn-like {
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    button {
       border: none;
       border-radius: 14px;
       padding: 12px 16px;
@@ -135,255 +139,139 @@
       font-weight: 700;
       cursor: pointer;
       transition: 0.2s ease;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
     }
 
-    .btn-primary { background: var(--primary); color: #fff; }
-    .btn-primary:hover { background: var(--primary-2); }
-    .btn-secondary { background: #eef7f6; color: var(--primary-2); border: 1px solid #cfe7e4; }
-    .btn-danger { background: #fff5f5; color: var(--danger); border: 1px solid #fecaca; }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
 
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    .btn-secondary {
+      background: #eef7f6;
+      color: var(--primary-dark);
+      border: 1px solid #cfe7e4;
+    }
+
+    .btn-danger {
+      background: #fff5f5;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
     }
 
     .alert {
       padding: 12px 14px;
       border-radius: 14px;
-      margin-bottom: 12px;
       line-height: 1.8;
       font-size: 14px;
       border: 1px solid transparent;
+      margin-top: 14px;
+      white-space: pre-wrap;
     }
 
-    .alert.ok { background: #ecfdf5; color: var(--ok); border-color: #a7f3d0; }
-    .alert.err { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
-    .alert.warn { background: #fff7ed; color: var(--warn); border-color: #fed7aa; }
+    .alert.ok {
+      background: var(--ok-bg);
+      color: var(--ok-text);
+      border-color: var(--ok-border);
+    }
 
-    .auth-wrap {
-      max-width: 540px;
-      margin: 0 auto;
+    .alert.err {
+      background: var(--err-bg);
+      color: var(--err-text);
+      border-color: var(--err-border);
+    }
+
+    .alert.warn {
+      background: var(--warn-bg);
+      color: var(--warn-text);
+      border-color: var(--warn-border);
+    }
+
+    .debug {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px dashed var(--border);
+      font-size: 13px;
+      color: #334155;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      min-height: 72px;
+    }
+
+    .hidden { display: none !important; }
+
+    .dashboard {
+      display: grid;
+      gap: 16px;
     }
 
     .topbar {
       display: flex;
       justify-content: space-between;
-      align-items: center;
       gap: 12px;
+      align-items: center;
       flex-wrap: wrap;
-      margin-bottom: 18px;
     }
 
-    .user-pill {
+    .pill {
       background: #eef7f6;
-      color: var(--primary-2);
+      color: var(--primary-dark);
       border: 1px solid #cfe7e4;
-      padding: 10px 14px;
       border-radius: 999px;
+      padding: 10px 14px;
       font-size: 14px;
       font-weight: 700;
     }
 
-    .stats {
+    .info-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
     }
 
-    .stat-box {
+    .info-box {
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 14px;
       background: #fff;
     }
 
-    .stat-box span {
+    .info-box span {
       display: block;
       color: var(--muted);
       font-size: 12px;
       margin-bottom: 6px;
     }
 
-    .stat-box strong {
-      font-size: 22px;
+    .info-box strong {
+      font-size: 18px;
       word-break: break-word;
     }
 
-    .varieties-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 16px;
-    }
+    @media (max-width: 700px) {
+      .container {
+        width: min(100% - 16px, 960px);
+      }
 
-    .variety-card {
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      overflow: hidden;
-      background: #fff;
-      box-shadow: var(--shadow);
-    }
+      .header,
+      .card {
+        padding: 14px;
+      }
 
-    .variety-head {
-      padding: 16px;
-      background: linear-gradient(135deg, #f3fbfa, #eef5f8);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .variety-head h3 {
-      margin-bottom: 10px;
-      font-size: 22px;
-    }
-
-    .meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .badge {
-      background: #eef7f6;
-      color: var(--primary-2);
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .variety-body {
-      padding: 16px;
-      display: grid;
-      gap: 14px;
-    }
-
-    .notes {
-      line-height: 1.9;
-      white-space: pre-wrap;
-      background: #fbfdff;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 12px;
-      min-height: 84px;
-    }
-
-    .media-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 10px;
-    }
-
-    .media-card {
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-      background: #fff;
-    }
-
-    .media-card img,
-    .media-card video {
-      width: 100%;
-      height: 130px;
-      object-fit: cover;
-      display: block;
-      background: #000;
-    }
-
-    .media-card a {
-      display: block;
-      padding: 8px;
-      text-align: center;
-      font-size: 12px;
-      color: var(--primary-2);
-      text-decoration: none;
-      border-top: 1px solid var(--border);
-    }
-
-    .evaluation-box {
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 14px;
-      background: #fcfefe;
-      display: grid;
-      gap: 12px;
-    }
-
-    .star-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .star-btn {
-      min-width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: #fff;
-      font-weight: 800;
-      cursor: pointer;
-    }
-
-    .star-btn.active {
-      background: var(--primary);
-      color: #fff;
-      border-color: var(--primary);
-    }
-
-    .empty {
-      text-align: center;
-      color: var(--muted);
-      padding: 28px;
-      border: 1px dashed var(--border);
-      border-radius: 18px;
-      background: #fafcfe;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #fff;
-      border-radius: 16px;
-      overflow: hidden;
-    }
-
-    th, td {
-      padding: 12px;
-      border-bottom: 1px solid var(--border);
-      text-align: right;
-      vertical-align: top;
-    }
-
-    th {
-      background: #f7fafc;
-      font-size: 13px;
-    }
-
-    .hidden { display: none !important; }
-
-    @media (max-width: 980px) {
-      .stats { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 720px) {
-      .container { width: min(100% - 16px, 1280px); }
-      .form-grid { grid-template-columns: 1fr; }
-      .varieties-grid { grid-template-columns: 1fr; }
-      .header, .card { padding: 14px; }
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>تقييم أصناف بذور التجارب - التكامل الوطنية للزراعة</h1>
-      <p>يدخل الموظف أو المدير بالإيميل وكلمة المرور المسجلة في Supabase.</p>
+      <h1>نظام تقييم أصناف بذور التجارب</h1>
+      <p>تسجيل دخول مباشر مع فحص واضح لمشكلة Auth وجدول profiles.</p>
     </div>
 
     <div id="authSection" class="card auth-wrap">
@@ -391,65 +279,63 @@
         <h2>تسجيل الدخول</h2>
       </div>
 
-      <div id="authMessage"></div>
+      <div class="hint">أدخل الإيميل وكلمة المرور المسجلة في Supabase.</div>
 
-      <div class="form-grid" style="margin-top:14px;">
-        <div class="field full">
+      <div class="form-grid">
+        <div class="field">
           <label for="loginEmail">الإيميل</label>
-          <input id="loginEmail" type="email" placeholder="example@company.com" autocomplete="email" />
+          <input id="loginEmail" type="email" autocomplete="email" placeholder="example@company.com" />
         </div>
 
-        <div class="field full">
+        <div class="field">
           <label for="loginPassword">كلمة المرور</label>
-          <input id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password" />
+          <input id="loginPassword" type="password" autocomplete="current-password" placeholder="••••••••" />
         </div>
       </div>
 
-      <div class="actions" style="margin-top:16px;">
-        <button class="btn-primary" id="loginBtn" type="button">دخول</button>
+      <div class="actions">
+        <button id="loginBtn" class="btn-primary" type="button">دخول</button>
+        <button id="testProfileBtn" class="btn-secondary" type="button">اختبار profiles</button>
       </div>
+
+      <div id="authMessage"></div>
+      <div id="debugBox" class="debug">جاهز.</div>
     </div>
 
-    <div id="appSection" class="hidden full-grid">
-      <div class="card">
-        <div class="topbar">
-          <div>
-            <h2>لوحة النظام</h2>
-            <div class="hint" id="userMetaText"></div>
-          </div>
-
-          <div class="actions">
-            <div id="userPill" class="user-pill"></div>
-            <button class="btn-secondary" id="refreshBtn" type="button">تحديث البيانات</button>
-            <button class="btn-danger" id="logoutBtn" type="button">تسجيل الخروج</button>
-          </div>
+    <div id="appSection" class="card dashboard hidden">
+      <div class="topbar">
+        <div>
+          <h2>تم تسجيل الدخول بنجاح</h2>
+          <div class="hint">هذه الصفحة تظهر إذا نجح Auth ونجح تحميل البروفايل.</div>
         </div>
 
-        <div class="stats">
-          <div class="stat-box"><span>عدد الأصناف</span><strong id="statVarieties">0</strong></div>
-          <div class="stat-box"><span>عدد التقييمات</span><strong id="statEvaluations">0</strong></div>
-          <div class="stat-box"><span>الدور</span><strong id="statRole">-</strong></div>
-          <div class="stat-box"><span>اسم المستخدم</span><strong id="statUser">-</strong></div>
+        <div class="actions">
+          <div id="userPill" class="pill">-</div>
+          <button id="reloadBtn" class="btn-secondary" type="button">إعادة تحميل</button>
+          <button id="logoutBtn" class="btn-danger" type="button">تسجيل الخروج</button>
         </div>
       </div>
 
-      <div id="employeeSection" class="card hidden">
-        <div class="title-row">
-          <h2>تقييم الأصناف</h2>
+      <div class="info-grid">
+        <div class="info-box">
+          <span>معرّف المستخدم</span>
+          <strong id="userId">-</strong>
         </div>
-        <div class="hint">المدير والموظف يقدرون يقيمون الأصناف من هنا.</div>
-        <div id="employeeMessage"></div>
-        <div id="varietiesWrap" class="varieties-grid"></div>
+        <div class="info-box">
+          <span>الإيميل</span>
+          <strong id="userEmail">-</strong>
+        </div>
+        <div class="info-box">
+          <span>الاسم</span>
+          <strong id="userName">-</strong>
+        </div>
+        <div class="info-box">
+          <span>الدور</span>
+          <strong id="userRole">-</strong>
+        </div>
       </div>
 
-      <div id="managerSection" class="card hidden">
-        <div class="title-row">
-          <h2>لوحة المدراء</h2>
-        </div>
-        <div class="hint">هذه اللوحة تظهر جميع التقييمات وأسماء من قاموا بها. لا تظهر إلا للمدير.</div>
-        <div id="managerMessage"></div>
-        <div id="managerTableWrap"></div>
-      </div>
+      <div id="appMessage"></div>
     </div>
   </div>
 
@@ -463,23 +349,21 @@
 
     let currentUser = null;
     let currentProfile = null;
-    let varieties = [];
-    let evaluations = [];
 
     const authSection = document.getElementById('authSection');
     const appSection = document.getElementById('appSection');
-    const employeeSection = document.getElementById('employeeSection');
-    const managerSection = document.getElementById('managerSection');
-
-    const authMessage = document.getElementById('authMessage');
-    const employeeMessage = document.getElementById('employeeMessage');
-    const managerMessage = document.getElementById('managerMessage');
 
     const loginEmailInput = document.getElementById('loginEmail');
     const loginPasswordInput = document.getElementById('loginPassword');
+
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
-    const refreshBtn = document.getElementById('refreshBtn');
+    const reloadBtn = document.getElementById('reloadBtn');
+    const testProfileBtn = document.getElementById('testProfileBtn');
+
+    const authMessage = document.getElementById('authMessage');
+    const appMessage = document.getElementById('appMessage');
+    const debugBox = document.getElementById('debugBox');
 
     function showBox(target, type, message) {
       target.innerHTML = `<div class="alert ${type}">${message}</div>`;
@@ -487,6 +371,17 @@
 
     function clearBox(target) {
       target.innerHTML = '';
+    }
+
+    function logStep(message) {
+      const time = new Date().toLocaleTimeString('ar-SA');
+      debugBox.textContent += `\n[${time}] ${message}`;
+      debugBox.scrollTop = debugBox.scrollHeight;
+      console.log(message);
+    }
+
+    function resetDebug(message = 'جاهز.') {
+      debugBox.textContent = message;
     }
 
     function escapeHtml(text) {
@@ -498,19 +393,75 @@
         .replace(/'/g, '&#039;');
     }
 
-    function setLoginLoading(isLoading) {
-      loginBtn.disabled = isLoading;
-      loginBtn.textContent = isLoading ? 'جاري تسجيل الدخول...' : 'دخول';
+    function setLoading(loading) {
+      loginBtn.disabled = loading;
+      testProfileBtn.disabled = loading;
+      loginBtn.textContent = loading ? 'جاري تسجيل الدخول...' : 'دخول';
     }
 
-    async function getCurrentSessionUser() {
-      const { data, error } = await supabase.auth.getUser();
-      if (error) throw error;
-      return data.user || null;
+    async function withTimeout(promise, ms, label) {
+      let timer;
+      const timeoutPromise = new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`انتهت مهلة ${label} بعد ${ms / 1000} ثوانٍ`)), ms);
+      });
+
+      try {
+        return await Promise.race([promise, timeoutPromise]);
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    async function loadProfileStrict(userId) {
+      logStep('بدء قراءة profiles...');
+      const result = await withTimeout(
+        supabase
+          .from('profiles')
+          .select('id, email, full_name, role')
+          .eq('id', userId)
+          .maybeSingle(),
+        10000,
+        'قراءة profiles'
+      );
+
+      const { data, error } = result;
+
+      if (error) {
+        throw new Error(`فشل قراءة profiles: ${error.message}`);
+      }
+
+      if (!data) {
+        throw new Error('تم تسجيل الدخول في Auth لكن لا يوجد صف مطابق في جدول profiles لهذا المستخدم.');
+      }
+
+      currentProfile = data;
+      logStep('تم تحميل البروفايل بنجاح.');
+      return data;
+    }
+
+    function fillDashboard() {
+      document.getElementById('userId').textContent = currentUser?.id || '-';
+      document.getElementById('userEmail').textContent = currentProfile?.email || currentUser?.email || '-';
+      document.getElementById('userName').textContent = currentProfile?.full_name || '-';
+      document.getElementById('userRole').textContent = currentProfile?.role || '-';
+      document.getElementById('userPill').textContent = `${currentProfile?.full_name || currentUser?.email || '-'} • ${currentProfile?.role || '-'}`;
+    }
+
+    function goToApp() {
+      authSection.classList.add('hidden');
+      appSection.classList.remove('hidden');
+      fillDashboard();
+    }
+
+    function goToAuth() {
+      authSection.classList.remove('hidden');
+      appSection.classList.add('hidden');
     }
 
     async function login() {
       clearBox(authMessage);
+      clearBox(appMessage);
+      resetDebug('بدء محاولة تسجيل الدخول...');
 
       const email = loginEmailInput.value.trim();
       const password = loginPasswordInput.value.trim();
@@ -521,26 +472,34 @@
       }
 
       try {
-        setLoginLoading(true);
+        setLoading(true);
 
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
+        logStep('تنفيذ signInWithPassword...');
+        const { data, error } = await withTimeout(
+          supabase.auth.signInWithPassword({ email, password }),
+          15000,
+          'تسجيل الدخول'
+        );
 
-        if (error) throw error;
-        if (!data.user) throw new Error('تم تسجيل الدخول لكن لم يتم العثور على المستخدم.');
+        if (error) {
+          throw error;
+        }
+
+        if (!data?.user) {
+          throw new Error('نجح طلب تسجيل الدخول لكن لم يتم إرجاع user.');
+        }
 
         currentUser = data.user;
+        logStep(`تم تسجيل الدخول في Auth بنجاح. user.id = ${currentUser.id}`);
 
-        await loadProfile();
-        authSection.classList.add('hidden');
-        appSection.classList.remove('hidden');
+        await loadProfileStrict(currentUser.id);
 
-        await refreshData();
+        showBox(authMessage, 'ok', 'تم تسجيل الدخول وتحميل البروفايل بنجاح.');
+        goToApp();
       } catch (err) {
         currentUser = null;
         currentProfile = null;
+        goToAuth();
 
         let msg = err?.message || 'حدث خطأ غير معروف';
 
@@ -548,359 +507,121 @@
           msg = 'بيانات الدخول غير صحيحة.';
         } else if (msg.includes('Email not confirmed')) {
           msg = 'الإيميل غير مؤكد في Supabase.';
-        } else if (msg.includes('JSON object requested, multiple (or no) rows returned')) {
-          msg = 'المستخدم مسجل في Auth لكن غير موجود أو مكرر في جدول profiles.';
+        } else if (msg.includes('Failed to fetch')) {
+          msg = 'فشل الاتصال بـ Supabase. تحقق من الإنترنت أو من المتصفح أو من حظر الشبكة.';
         }
 
-        showBox(authMessage, 'err', 'تعذر تسجيل الدخول: ' + escapeHtml(msg));
-        authSection.classList.remove('hidden');
-        appSection.classList.add('hidden');
+        logStep(`خطأ: ${msg}`);
+        showBox(authMessage, 'err', escapeHtml(msg));
       } finally {
-        setLoginLoading(false);
+        setLoading(false);
+      }
+    }
+
+    async function testProfiles() {
+      clearBox(authMessage);
+      resetDebug('اختبار الوصول إلى جدول profiles...');
+
+      try {
+        setLoading(true);
+
+        const { data, error } = await withTimeout(
+          supabase.from('profiles').select('id, email, full_name, role').limit(3),
+          10000,
+          'اختبار profiles'
+        );
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        logStep('نجح الوصول إلى جدول profiles.');
+        showBox(
+          authMessage,
+          'ok',
+          `تم الوصول إلى profiles بنجاح.\nعدد السجلات التي رجعت في الاختبار: ${Array.isArray(data) ? data.length : 0}`
+        );
+      } catch (err) {
+        let msg = err?.message || 'فشل اختبار profiles';
+        logStep(`خطأ الاختبار: ${msg}`);
+        showBox(authMessage, 'warn', escapeHtml(`تعذر قراءة profiles: ${msg}`));
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    async function reloadSession() {
+      clearBox(appMessage);
+      resetDebug('إعادة تحميل الجلسة الحالية...');
+
+      try {
+        const { data, error } = await supabase.auth.getUser();
+        if (error) throw error;
+
+        if (!data.user) {
+          throw new Error('لا توجد جلسة حالية.');
+        }
+
+        currentUser = data.user;
+        logStep(`تم جلب الجلسة. user.id = ${currentUser.id}`);
+        await loadProfileStrict(currentUser.id);
+        fillDashboard();
+        showBox(appMessage, 'ok', 'تم تحديث بيانات الجلسة والبروفايل.');
+      } catch (err) {
+        showBox(appMessage, 'err', escapeHtml(err.message || 'تعذر إعادة التحميل'));
       }
     }
 
     async function logout() {
+      clearBox(appMessage);
+      resetDebug('تسجيل الخروج...');
+
       try {
         await supabase.auth.signOut();
+        currentUser = null;
+        currentProfile = null;
+        loginPasswordInput.value = '';
+        goToAuth();
+        logStep('تم تسجيل الخروج.');
       } catch (err) {
-        console.error(err);
-      }
-
-      currentUser = null;
-      currentProfile = null;
-      varieties = [];
-      evaluations = [];
-
-      authSection.classList.remove('hidden');
-      appSection.classList.add('hidden');
-      employeeSection.classList.add('hidden');
-      managerSection.classList.add('hidden');
-
-      clearBox(authMessage);
-      clearBox(employeeMessage);
-      clearBox(managerMessage);
-
-      loginPasswordInput.value = '';
-      setLoginLoading(false);
-    }
-
-    async function loadProfile() {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', currentUser.id)
-        .maybeSingle();
-
-      if (error) throw error;
-      if (!data) throw new Error('المستخدم موجود في Auth لكنه غير مربوط بجدول profiles.');
-
-      currentProfile = data;
-    }
-
-    async function loadVarieties() {
-      const { data, error } = await supabase
-        .from('varieties')
-        .select('*')
-        .order('visit_date', { ascending: false, nullsFirst: false });
-
-      if (error) throw error;
-      varieties = data || [];
-    }
-
-    async function loadEvaluationsForCurrentUser() {
-      if (!currentProfile) return;
-
-      if (currentProfile.role === 'manager') {
-        const { data, error } = await supabase
-          .from('evaluations')
-          .select('*')
-          .order('id', { ascending: false });
-
-        if (error) throw error;
-        evaluations = data || [];
-      } else {
-        const { data, error } = await supabase
-          .from('evaluations')
-          .select('*')
-          .eq('evaluator_id', currentUser.id)
-          .order('id', { ascending: false });
-
-        if (error) throw error;
-        evaluations = data || [];
+        showBox(appMessage, 'err', escapeHtml(err.message || 'تعذر تسجيل الخروج'));
       }
     }
 
-    async function loadAllProfiles() {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*');
-
-      if (error) throw error;
-      return data || [];
-    }
-
-    function renderStats() {
-      document.getElementById('statVarieties').textContent = String(varieties.length);
-      document.getElementById('statEvaluations').textContent = String(evaluations.length);
-      document.getElementById('statRole').textContent = currentProfile?.role === 'manager' ? 'مدير' : 'موظف';
-      document.getElementById('statUser').textContent = currentProfile?.full_name || currentProfile?.email || '-';
-      document.getElementById('userPill').textContent = `${currentProfile?.full_name || currentProfile?.email || '-'} • ${currentProfile?.role || '-'}`;
-      document.getElementById('userMetaText').textContent = `المستخدم الحالي: ${currentProfile?.email || '-'} — الصلاحية: ${currentProfile?.role || '-'}`;
-    }
-
-    function getExistingEvaluation(varietyId) {
-      return evaluations.find(e => e.variety_id === varietyId && e.evaluator_id === currentUser.id);
-    }
-
-    function renderVarieties() {
-      const wrap = document.getElementById('varietiesWrap');
-
-      if (!varieties.length) {
-        wrap.innerHTML = '<div class="empty">لا توجد أصناف مضافة حتى الآن.</div>';
-        return;
-      }
-
-      wrap.innerHTML = varieties.map(v => {
-        const existing = getExistingEvaluation(v.id);
-        const mediaItems = Array.isArray(v.media) ? v.media : [];
-
-        return `
-          <div class="variety-card">
-            <div class="variety-head">
-              <h3>${escapeHtml(v.variety_name || '-')}</h3>
-              <div class="meta">
-                <span class="badge">${escapeHtml(v.planting_type || 'بدون نوع زراعة')}</span>
-                <span>الشركة: ${escapeHtml(v.producer_company || '-')}</span>
-                <span>الزيارة: ${escapeHtml(v.visit_date || '-')}</span>
-              </div>
-            </div>
-
-            <div class="variety-body">
-              <div class="notes">${escapeHtml(v.report_notes || 'لا توجد ملاحظات')}</div>
-
-              ${
-                mediaItems.length
-                  ? `
-                    <div class="media-grid">
-                      ${mediaItems.map(item => {
-                        const isVideo = String(item.type || '').startsWith('video/');
-                        return `
-                          <div class="media-card">
-                            ${
-                              isVideo
-                                ? `<video controls preload="metadata"><source src="${item.url}" type="${item.type || ''}"></video>`
-                                : `<img src="${item.url}" alt="media" />`
-                            }
-                            <a href="${item.url}" target="_blank" rel="noopener noreferrer">فتح الملف</a>
-                          </div>
-                        `;
-                      }).join('')}
-                    </div>
-                  `
-                  : '<div class="empty">لا توجد صور أو فيديو.</div>'
-              }
-
-              <div class="evaluation-box" data-box-variety-id="${v.id}" data-selected-score="${existing?.score || ''}">
-                <strong>تقييم الصنف</strong>
-
-                <div class="star-row">
-                  ${[1, 2, 3, 4, 5].map(n => `
-                    <button
-                      type="button"
-                      class="star-btn ${existing?.score === n ? 'active' : ''}"
-                      data-variety-id="${v.id}"
-                      data-score="${n}"
-                    >${n}</button>
-                  `).join('')}
-                </div>
-
-                <textarea id="comment_${v.id}" placeholder="اكتب تعليقك على هذا الصنف...">${escapeHtml(existing?.comment || '')}</textarea>
-
-                <div class="actions">
-                  <button class="btn-primary" type="button" onclick="window.saveEvaluation('${v.id}')">حفظ التقييم</button>
-                  ${existing ? `<span class="badge">تم حفظ تقييم سابق</span>` : ''}
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      document.querySelectorAll('.star-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-          const varietyId = this.dataset.varietyId;
-          const score = Number(this.dataset.score);
-
-          document.querySelectorAll(`button[data-variety-id="${varietyId}"]`).forEach(x => {
-            x.classList.remove('active');
-          });
-
-          this.classList.add('active');
-
-          const box = document.querySelector(`[data-box-variety-id="${varietyId}"]`);
-          if (box) {
-            box.dataset.selectedScore = String(score);
-          }
-        });
-      });
-    }
-
-    async function saveEvaluation(varietyId) {
-      clearBox(employeeMessage);
-
-      const box = document.querySelector(`[data-box-variety-id="${varietyId}"]`);
-      const selectedScore = Number(box?.dataset.selectedScore || 0);
-      const comment = document.getElementById(`comment_${varietyId}`)?.value.trim() || '';
-
-      if (!selectedScore) {
-        showBox(employeeMessage, 'err', 'اختر درجة التقييم أولًا.');
-        return;
-      }
-
+    async function boot() {
+      resetDebug('فحص الجلسة الحالية...');
       try {
-        const existing = getExistingEvaluation(varietyId);
+        const { data, error } = await supabase.auth.getUser();
+        if (error) throw error;
 
-        if (existing) {
-          const { error } = await supabase
-            .from('evaluations')
-            .update({
-              score: selectedScore,
-              comment
-            })
-            .eq('id', existing.id)
-            .eq('evaluator_id', currentUser.id);
-
-          if (error) throw error;
-        } else {
-          const { error } = await supabase
-            .from('evaluations')
-            .insert({
-              variety_id: varietyId,
-              evaluator_id: currentUser.id,
-              score: selectedScore,
-              comment
-            });
-
-          if (error) throw error;
-        }
-
-        showBox(employeeMessage, 'ok', 'تم حفظ التقييم بنجاح.');
-        await refreshData();
-      } catch (error) {
-        showBox(employeeMessage, 'err', `تعذر حفظ التقييم: ${escapeHtml(error.message || 'Unknown error')}`);
-      }
-    }
-
-    async function renderManagerTable() {
-      if (currentProfile?.role !== 'manager') return;
-
-      const [allProfiles] = await Promise.all([
-        loadAllProfiles(),
-        Promise.resolve(varieties)
-      ]);
-
-      const profileMap = Object.fromEntries(allProfiles.map(p => [p.id, p]));
-      const varietyMap = Object.fromEntries(varieties.map(v => [v.id, v]));
-
-      if (!evaluations.length) {
-        document.getElementById('managerTableWrap').innerHTML = '<div class="empty">لا توجد تقييمات حتى الآن.</div>';
-        return;
-      }
-
-      document.getElementById('managerTableWrap').innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>اسم المقيم</th>
-              <th>الإيميل</th>
-              <th>الصنف</th>
-              <th>الدرجة</th>
-              <th>التعليق</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${evaluations.map(ev => {
-              const p = profileMap[ev.evaluator_id] || {};
-              const v = varietyMap[ev.variety_id] || {};
-
-              return `
-                <tr>
-                  <td>${escapeHtml(p.full_name || '-')}</td>
-                  <td>${escapeHtml(p.email || '-')}</td>
-                  <td>${escapeHtml(v.variety_name || '-')}</td>
-                  <td>${escapeHtml(ev.score || '-')}</td>
-                  <td>${escapeHtml(ev.comment || '-')}</td>
-                </tr>
-              `;
-            }).join('')}
-          </tbody>
-        </table>
-      `;
-    }
-
-    async function refreshData() {
-      await loadVarieties();
-      await loadEvaluationsForCurrentUser();
-
-      renderStats();
-
-      employeeSection.classList.remove('hidden');
-      renderVarieties();
-
-      if (currentProfile?.role === 'manager') {
-        managerSection.classList.remove('hidden');
-        await renderManagerTable();
-      } else {
-        managerSection.classList.add('hidden');
-      }
-    }
-
-    async function bootApp() {
-      try {
-        currentUser = currentUser || await getCurrentSessionUser();
-
-        if (!currentUser) {
-          authSection.classList.remove('hidden');
-          appSection.classList.add('hidden');
-          employeeSection.classList.add('hidden');
-          managerSection.classList.add('hidden');
+        if (!data.user) {
+          logStep('لا توجد جلسة محفوظة.');
+          goToAuth();
           return;
         }
 
-        await loadProfile();
+        currentUser = data.user;
+        logStep(`وجدت جلسة محفوظة. user.id = ${currentUser.id}`);
 
-        authSection.classList.add('hidden');
-        appSection.classList.remove('hidden');
-
-        await refreshData();
-      } catch (error) {
-        authSection.classList.remove('hidden');
-        appSection.classList.add('hidden');
-        employeeSection.classList.add('hidden');
-        managerSection.classList.add('hidden');
-
-        showBox(authMessage, 'err', `تعذر تحميل الحساب: ${escapeHtml(error.message || 'Unknown error')}`);
-      } finally {
-        setLoginLoading(false);
+        await loadProfileStrict(currentUser.id);
+        goToApp();
+        showBox(appMessage, 'ok', 'تم الدخول تلقائيًا من الجلسة المحفوظة.');
+      } catch (err) {
+        logStep(`فشل boot: ${err.message || err}`);
+        goToAuth();
       }
     }
 
     loginBtn.addEventListener('click', login);
     logoutBtn.addEventListener('click', logout);
-    refreshBtn.addEventListener('click', refreshData);
+    reloadBtn.addEventListener('click', reloadSession);
+    testProfileBtn.addEventListener('click', testProfiles);
 
     loginPasswordInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') login();
     });
 
-    window.saveEvaluation = saveEvaluation;
-
-    supabase.auth.onAuthStateChange(async (_event, session) => {
-      currentUser = session?.user || null;
-    });
-
-    bootApp();
+    boot();
   </script>
 </body>
 </html>
