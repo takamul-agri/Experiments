@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>تقرير تجارب مشتل نوارة - نسخة أونلاين</title>
+  <title>تقييم الأصناف - مشتل نوارة</title>
   <style>
     :root {
-      --bg: #f5f7fb;
+      --bg: #f4f7fb;
       --card: #ffffff;
       --text: #1f2937;
       --muted: #6b7280;
@@ -14,8 +14,9 @@
       --primary-2: #115e59;
       --border: #dbe3ea;
       --danger: #b91c1c;
+      --ok: #065f46;
       --warn: #92400e;
-      --shadow: 0 10px 30px rgba(0,0,0,0.08);
+      --shadow: 0 10px 28px rgba(0,0,0,0.08);
       --radius: 18px;
     }
 
@@ -23,11 +24,15 @@
     body {
       margin: 0;
       font-family: Tahoma, Arial, sans-serif;
-      background: linear-gradient(180deg, #f7fafc 0%, #eef4f8 100%);
+      background: linear-gradient(180deg, #f8fbfd 0%, #eef4f8 100%);
       color: var(--text);
     }
 
-    .container { width: min(1280px, calc(100% - 24px)); margin: 24px auto 40px; }
+    .container {
+      width: min(1280px, calc(100% - 24px));
+      margin: 24px auto 40px;
+    }
+
     .header {
       background: linear-gradient(135deg, #0f766e, #134e4a);
       color: #fff;
@@ -36,10 +41,18 @@
       box-shadow: var(--shadow);
       margin-bottom: 18px;
     }
-    .header h1 { margin: 0 0 10px; font-size: clamp(24px, 3vw, 38px); }
-    .header p { margin: 0; color: rgba(255,255,255,0.9); line-height: 1.8; }
 
-    .grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 18px; align-items: start; }
+    .header h1 {
+      margin: 0 0 10px;
+      font-size: clamp(24px, 3vw, 38px);
+    }
+
+    .header p {
+      margin: 0;
+      color: rgba(255,255,255,0.9);
+      line-height: 1.9;
+    }
+
     .card {
       background: var(--card);
       border: 1px solid var(--border);
@@ -47,26 +60,59 @@
       padding: 18px;
       box-shadow: var(--shadow);
     }
-    .card h2 { margin: 0 0 14px; font-size: 20px; }
-    .hint { color: var(--muted); font-size: 14px; line-height: 1.8; margin-bottom: 14px; }
 
-    .alert {
-      padding: 12px 14px;
-      border-radius: 14px;
-      margin-bottom: 12px;
-      line-height: 1.8;
-      font-size: 14px;
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      align-items: start;
     }
-    .alert.warn { background: #fff7ed; color: var(--warn); border: 1px solid #fed7aa; }
-    .alert.ok { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
-    .alert.err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
 
-    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-    .field { display: flex; flex-direction: column; gap: 8px; }
+    .full-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    h2, h3 {
+      margin: 0;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+      margin-top: 8px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
     .field.full { grid-column: 1 / -1; }
-    label { font-size: 14px; font-weight: 700; }
 
-    input, textarea {
+    label {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    input, textarea, select {
       width: 100%;
       border: 1px solid var(--border);
       border-radius: 14px;
@@ -77,22 +123,18 @@
       outline: none;
       transition: 0.2s ease;
     }
-    textarea { min-height: 130px; resize: vertical; line-height: 1.8; }
-    input:focus, textarea:focus {
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+      line-height: 1.8;
+    }
+
+    input:focus, textarea:focus, select:focus {
       border-color: var(--primary);
       box-shadow: 0 0 0 4px rgba(15,118,110,0.1);
     }
 
-    .upload-box {
-      border: 2px dashed #9db4c0;
-      border-radius: 18px;
-      padding: 20px;
-      text-align: center;
-      background: #f9fcfd;
-    }
-    .upload-box p { margin: 0 0 10px; color: var(--muted); line-height: 1.7; }
-
-    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
     button, .btn-like {
       border: none;
       border-radius: 14px;
@@ -107,186 +149,332 @@
       justify-content: center;
       gap: 8px;
     }
+
     .btn-primary { background: var(--primary); color: #fff; }
     .btn-primary:hover { background: var(--primary-2); }
     .btn-secondary { background: #eef7f6; color: var(--primary-2); border: 1px solid #cfe7e4; }
     .btn-danger { background: #fff5f5; color: var(--danger); border: 1px solid #fecaca; }
 
-    .mini-list { display: grid; gap: 12px; margin-top: 14px; max-height: 350px; overflow: auto; padding-inline-end: 4px; }
-    .mini-item { border: 1px solid var(--border); border-radius: 16px; padding: 14px; background: #fbfdff; }
-    .mini-top { display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-bottom: 8px; }
-    .mini-title { font-weight: 800; font-size: 16px; }
-    .meta { display: flex; flex-wrap: wrap; gap: 8px; color: var(--muted); font-size: 13px; }
-    .badge { background: #eef7f6; color: var(--primary-2); padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
 
-    .results-toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
-    .results { display: grid; gap: 16px; }
-    .report-card { border: 1px solid var(--border); border-radius: 22px; overflow: hidden; background: #fff; box-shadow: var(--shadow); }
-    .report-head { padding: 18px; background: linear-gradient(135deg, #f3fbfa, #eef5f8); border-bottom: 1px solid var(--border); }
-    .report-head h3 { margin: 0 0 10px; font-size: 24px; }
-    .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    .info-box { border: 1px solid var(--border); border-radius: 16px; padding: 12px; background: #fff; }
-    .info-box span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
-    .info-box strong { line-height: 1.7; word-break: break-word; }
-    .report-body { padding: 18px; }
+    .alert {
+      padding: 12px 14px;
+      border-radius: 14px;
+      margin-bottom: 12px;
+      line-height: 1.8;
+      font-size: 14px;
+      border: 1px solid transparent;
+    }
+
+    .alert.ok { background: #ecfdf5; color: var(--ok); border-color: #a7f3d0; }
+    .alert.err { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
+    .alert.warn { background: #fff7ed; color: var(--warn); border-color: #fed7aa; }
+
+    .auth-wrap {
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .user-pill {
+      background: #eef7f6;
+      color: var(--primary-2);
+      border: 1px solid #cfe7e4;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .stat-box {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .stat-box span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .stat-box strong {
+      font-size: 22px;
+    }
+
+    .varieties-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    .variety-card {
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .variety-head {
+      padding: 16px;
+      background: linear-gradient(135deg, #f3fbfa, #eef5f8);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .variety-head h3 {
+      margin-bottom: 10px;
+      font-size: 22px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .badge {
+      background: #eef7f6;
+      color: var(--primary-2);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .variety-body {
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
     .notes {
-      margin-bottom: 16px;
       line-height: 1.9;
       white-space: pre-wrap;
       background: #fbfdff;
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 14px;
+      padding: 12px;
+      min-height: 84px;
     }
-    .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-    .media-card { border: 1px solid var(--border); border-radius: 18px; overflow: hidden; background: #fff; }
-    .media-card img, .media-card video {
-      width: 100%; height: 220px; object-fit: cover; display: block; background: #000;
-    }
-    .media-actions { display: flex; gap: 8px; padding: 10px; flex-wrap: wrap; }
-    .empty { text-align: center; color: var(--muted); padding: 28px; border: 1px dashed var(--border); border-radius: 18px; background: #fafcfe; }
-    .footer-note { margin-top: 14px; color: var(--muted); line-height: 1.8; font-size: 14px; }
-    .search-box { flex: 1; min-width: 220px; }
-    .loader { display: none; margin-top: 10px; color: var(--primary-2); font-weight: 700; }
-    .loader.show { display: block; }
-    code.inline { background: #f3f4f6; padding: 2px 6px; border-radius: 6px; }
 
-    @media (max-width: 960px) {
-      .grid, .info-grid { grid-template-columns: 1fr; }
-      .info-grid { grid-template-columns: repeat(2, 1fr); }
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
     }
-    @media (max-width: 640px) {
-      .form-grid, .info-grid { grid-template-columns: 1fr; }
+
+    .media-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .media-card img,
+    .media-card video {
+      width: 100%;
+      height: 130px;
+      object-fit: cover;
+      display: block;
+      background: #000;
+    }
+
+    .media-card a {
+      display: block;
+      padding: 8px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--primary-2);
+      text-decoration: none;
+      border-top: 1px solid var(--border);
+    }
+
+    .evaluation-box {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      background: #fcfefe;
+      display: grid;
+      gap: 12px;
+    }
+
+    .star-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .star-btn {
+      min-width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-weight: 800;
+    }
+
+    .star-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 28px;
+      border: 1px dashed var(--border);
+      border-radius: 18px;
+      background: #fafcfe;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: right;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f7fafc;
+      font-size: 13px;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 980px) {
+      .grid, .stats { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 720px) {
       .container { width: min(100% - 16px, 1280px); }
-      .header, .card, .report-head, .report-body { padding: 14px; }
-    }
-    @media print {
-      body { background: #fff; }
-      .header, .left-panel, .results-toolbar, .media-actions, .footer-note, .setup-card { display: none !important; }
-      .container { width: 100%; margin: 0; }
-      .report-card { box-shadow: none; page-break-inside: avoid; margin-bottom: 20px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .varieties-grid { grid-template-columns: 1fr; }
+      .header, .card { padding: 14px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>تقرير تجارب مشتل نوارة</h1>
+      <h1>تقييم أصناف مشتل نوارة</h1>
       <p>
-        نسخة أونلاين مربوطة بـ Supabase بحيث ترفع الصور والفيديو على التخزين السحابي،
-        وتحفظ بيانات الأصناف في قاعدة بيانات، وتفتح نفس التقرير من أي جهاز.
+        نسخة مرتبطة بـ Supabase لتسجيل دخول الموظفين والمدراء، عرض الأصناف، حفظ التقييمات،
+        وإظهار لوحة متابعة للمدير توضح من قام بالتقييم والتعليق.
       </p>
     </div>
 
-    <div class="card setup-card" style="margin-bottom:18px;">
-      <h2>إعداد الربط السحابي</h2>
-      <div class="hint">
-        أول مرة فقط: ضع بيانات مشروع Supabase هنا. بعدها تُحفظ في المتصفح.
-        استخدم <code class="inline">Anon / Publishable key</code> فقط، وليس Service Role key.
+    <div id="setupCard" class="card auth-wrap" style="margin-bottom:18px;">
+      <div class="title-row">
+        <h2>إعداد الربط</h2>
       </div>
-      <div id="setupMessage" class="alert warn">لم يتم ربط النظام بمشروع Supabase بعد.</div>
-      <div class="form-grid">
-        <div class="field">
+      <div class="hint">أدخل رابط مشروع Supabase و مفتاح Anon مرة واحدة فقط. لا تستخدم Service Role key.</div>
+      <div id="setupMessage"></div>
+      <div class="form-grid" style="margin-top:14px;">
+        <div class="field full">
           <label for="supabaseUrl">Supabase Project URL</label>
           <input id="supabaseUrl" type="text" placeholder="https://your-project.supabase.co" />
         </div>
-        <div class="field">
-          <label for="supabaseAnonKey">Supabase Anon / Publishable Key</label>
+        <div class="field full">
+          <label for="supabaseAnonKey">Supabase Anon Key</label>
           <input id="supabaseAnonKey" type="text" placeholder="ضع المفتاح هنا" />
         </div>
-        <div class="field">
-          <label for="supabaseTable">اسم الجدول</label>
-          <input id="supabaseTable" type="text" value="nursery_reports" />
-        </div>
-        <div class="field">
-          <label for="supabaseBucket">اسم Bucket للملفات</label>
-          <input id="supabaseBucket" type="text" value="nursery-media" />
-        </div>
       </div>
-      <div class="actions">
+      <div class="actions" style="margin-top:16px;">
         <button class="btn-primary" id="saveSetupBtn">حفظ الإعدادات</button>
-        <button class="btn-secondary" id="testConnectionBtn">اختبار الاتصال</button>
-      </div>
-      <div class="footer-note">
-        لازم يكون عندك جدول وباكت عام (Public Bucket) بنفس الأسماء الموجودة هنا أو تغيّرها بما يناسب مشروعك.
+        <button class="btn-secondary" id="testSetupBtn">اختبار الاتصال</button>
       </div>
     </div>
 
-    <div class="grid">
-      <div class="left-panel">
-        <div class="card">
-          <h2>إضافة صنف جديد</h2>
-          <div class="hint">املأ البيانات، أضف الصور أو الفيديو، ثم اضغط <strong>حفظ الصنف</strong>.</div>
-          <div id="formMessage"></div>
-
-          <div class="form-grid">
-            <div class="field">
-              <label for="varietyName">اسم الصنف</label>
-              <input id="varietyName" type="text" placeholder="مثال: باذنجان E030" />
-            </div>
-            <div class="field">
-              <label for="plantingType">نوع الزراعة</label>
-              <input id="plantingType" type="text" placeholder="مثال: بيت محمي / حقل مفتوح" />
-            </div>
-            <div class="field">
-              <label for="visitDate">تاريخ الزيارة</label>
-              <input id="visitDate" type="date" />
-            </div>
-            <div class="field">
-              <label for="producerCompany">الشركة المنتجة</label>
-              <input id="producerCompany" type="text" placeholder="اسم الشركة المنتجة" />
-            </div>
-            <div class="field full">
-              <label for="reportNotes">تقرير الصنف / الملاحظات</label>
-              <textarea id="reportNotes" placeholder="اكتب ملاحظاتك هنا: قوة النمو، العقد، التبكير، التجانس، الملاحظات العامة..."></textarea>
-            </div>
-            <div class="field full">
-              <label>صور الصنف / فيديوهات الصنف</label>
-              <div class="upload-box">
-                <p>ارفع الصور أو الفيديوهات الخاصة بالصنف الحالي فقط</p>
-                <input id="mediaFiles" type="file" accept="image/*,video/*" multiple />
-              </div>
-            </div>
-          </div>
-
-          <div class="actions">
-            <button class="btn-primary" id="saveBtn">حفظ الصنف</button>
-            <button class="btn-secondary" id="resetBtn" type="button">تفريغ الحقول</button>
-            <button class="btn-secondary" id="showResultsBtn" type="button">عرض النتائج</button>
-          </div>
-          <div id="saveLoader" class="loader">جارٍ الرفع والحفظ ...</div>
+    <div id="authSection" class="card auth-wrap">
+      <div class="title-row">
+        <h2>تسجيل الدخول</h2>
+      </div>
+      <div class="hint">يدخل الموظف أو المدير بالإيميل وكلمة المرور التي أنشأتها له في Supabase.</div>
+      <div id="authMessage"></div>
+      <div class="form-grid" style="margin-top:14px;">
+        <div class="field full">
+          <label for="loginEmail">الإيميل</label>
+          <input id="loginEmail" type="email" placeholder="example@company.com" />
         </div>
+        <div class="field full">
+          <label for="loginPassword">كلمة المرور</label>
+          <input id="loginPassword" type="password" placeholder="••••••••" />
+        </div>
+      </div>
+      <div class="actions" style="margin-top:16px;">
+        <button class="btn-primary" id="loginBtn">دخول</button>
+      </div>
+    </div>
 
-        <div class="card" style="margin-top:18px;">
-          <h2>الأصناف المحفوظة</h2>
-          <div class="hint">البيانات هنا تُسحب من السحابة، لذلك ستظهر من أي جهاز بعد الربط بنفس المشروع.</div>
-          <div id="savedList" class="mini-list"></div>
+    <div id="appSection" class="hidden full-grid">
+      <div class="card">
+        <div class="topbar">
+          <div>
+            <h2>لوحة النظام</h2>
+            <div class="hint" id="userMetaText"></div>
+          </div>
+          <div class="actions">
+            <div id="userPill" class="user-pill"></div>
+            <button class="btn-secondary" id="refreshBtn">تحديث البيانات</button>
+            <button class="btn-danger" id="logoutBtn">تسجيل الخروج</button>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat-box"><span>عدد الأصناف</span><strong id="statVarieties">0</strong></div>
+          <div class="stat-box"><span>عدد التقييمات</span><strong id="statEvaluations">0</strong></div>
+          <div class="stat-box"><span>الدور</span><strong id="statRole">-</strong></div>
+          <div class="stat-box"><span>اسم المستخدم</span><strong id="statUser">-</strong></div>
         </div>
       </div>
 
-      <div>
-        <div class="card">
-          <h2>إدارة التقرير</h2>
-          <div class="actions">
-            <button class="btn-secondary" id="refreshCloudBtn">تحديث من السحابة</button>
-            <button class="btn-secondary" id="printBtn">طباعة / PDF</button>
-          </div>
-          <div class="footer-note">
-            هذه النسخة تحفظ الأصناف في قاعدة البيانات، والملفات في التخزين السحابي.
-            بعد النشر على GitHub Pages، افتح نفس الرابط من أي جهاز وسيظهر نفس المحتوى.
-          </div>
+      <div id="employeeSection" class="card hidden">
+        <div class="title-row">
+          <h2>تقييم الأصناف</h2>
         </div>
+        <div class="hint">الموظف يرى الأصناف ويقيّمها. المدير كذلك يستطيع التقييم بالإضافة إلى الاطلاع على لوحة النتائج.</div>
+        <div id="employeeMessage"></div>
+        <div id="varietiesWrap" class="varieties-grid"></div>
+      </div>
 
-        <div class="card" style="margin-top:18px;">
-          <h2>عرض النتائج</h2>
-          <div class="results-toolbar">
-            <input id="searchInput" class="search-box" type="text" placeholder="ابحث باسم الصنف أو الشركة" />
-            <button class="btn-primary" id="refreshResultsBtn">تحديث العرض</button>
-          </div>
-          <div id="results" class="results">
-            <div class="empty">لا توجد أصناف مضافة حتى الآن.</div>
-          </div>
+      <div id="managerSection" class="card hidden">
+        <div class="title-row">
+          <h2>لوحة المدراء</h2>
         </div>
+        <div class="hint">هذه اللوحة تظهر جميع التقييمات وأسماء من قاموا بها. لا تظهر إلا للمدير.</div>
+        <div id="managerMessage"></div>
+        <div id="managerTableWrap"></div>
       </div>
     </div>
   </div>
@@ -294,32 +482,169 @@
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-    const CONFIG_KEY = 'nawarah_supabase_config_v1';
-    let reportItems = [];
-    let editingId = null;
+    const CONFIG_KEY = 'nawarah_eval_supabase_config_v2';
+
     let supabase = null;
-    let config = null;
+    let currentUser = null;
+    let currentProfile = null;
+    let varieties = [];
+    let evaluations = [];
+
+    const setupCard = document.getElementById('setupCard');
+    const authSection = document.getElementById('authSection');
+    const appSection = document.getElementById('appSection');
+    const employeeSection = document.getElementById('employeeSection');
+    const managerSection = document.getElementById('managerSection');
 
     const setupMessage = document.getElementById('setupMessage');
-    const formMessage = document.getElementById('formMessage');
-    const saveLoader = document.getElementById('saveLoader');
+    const authMessage = document.getElementById('authMessage');
+    const employeeMessage = document.getElementById('employeeMessage');
+    const managerMessage = document.getElementById('managerMessage');
+
     const supabaseUrlInput = document.getElementById('supabaseUrl');
     const supabaseAnonKeyInput = document.getElementById('supabaseAnonKey');
-    const supabaseTableInput = document.getElementById('supabaseTable');
-    const supabaseBucketInput = document.getElementById('supabaseBucket');
+    const loginEmailInput = document.getElementById('loginEmail');
+    const loginPasswordInput = document.getElementById('loginPassword');
 
-    const varietyName = document.getElementById('varietyName');
-    const plantingType = document.getElementById('plantingType');
-    const visitDate = document.getElementById('visitDate');
-    const producerCompany = document.getElementById('producerCompany');
-    const reportNotes = document.getElementById('reportNotes');
-    const mediaFiles = document.getElementById('mediaFiles');
-    const savedList = document.getElementById('savedList');
-    const results = document.getElementById('results');
-    const searchInput = document.getElementById('searchInput');
+    function showBox(target, type, message) {
+      target.innerHTML = `<div class="alert ${type}">${message}</div>`;
+    }
 
-    function uid() {
-      return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    function clearBox(target) {
+      target.innerHTML = '';
+    }
+
+    function saveConfig() {
+      const config = {
+        url: supabaseUrlInput.value.trim(),
+        anonKey: supabaseAnonKeyInput.value.trim()
+      };
+      localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+      buildClient();
+      showBox(setupMessage, 'ok', 'تم حفظ الإعدادات محليًا.');
+    }
+
+    function loadConfig() {
+      try {
+        const config = JSON.parse(localStorage.getItem(CONFIG_KEY) || '{}');
+        supabaseUrlInput.value = config.url || '';
+        supabaseAnonKeyInput.value = config.anonKey || '';
+      } catch {}
+    }
+
+    function buildClient() {
+      const url = supabaseUrlInput.value.trim();
+      const anonKey = supabaseAnonKeyInput.value.trim();
+      if (!url || !anonKey) {
+        supabase = null;
+        return;
+      }
+      supabase = createClient(url, anonKey);
+    }
+
+    async function testConnection() {
+      if (!supabase) {
+        showBox(setupMessage, 'err', 'أدخل البيانات أولًا ثم احفظ الإعدادات.');
+        return;
+      }
+      try {
+        const { error } = await supabase.from('profiles').select('id', { head: true, count: 'exact' });
+        if (error) throw error;
+        showBox(setupMessage, 'ok', 'الاتصال ناجح.');
+      } catch (error) {
+        showBox(setupMessage, 'err', `فشل الاتصال: ${escapeHtml(error.message || 'Unknown error')}`);
+      }
+    }
+
+    async function login() {
+      clearBox(authMessage);
+      if (!supabase) {
+        showBox(authMessage, 'err', 'احفظ إعدادات Supabase أولًا.');
+        return;
+      }
+      const email = loginEmailInput.value.trim();
+      const password = loginPasswordInput.value.trim();
+      if (!email || !password) {
+        showBox(authMessage, 'err', 'أدخل الإيميل وكلمة المرور.');
+        return;
+      }
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        currentUser = data.user;
+        await bootApp();
+      } catch (error) {
+        showBox(authMessage, 'err', `تعذر تسجيل الدخول: ${escapeHtml(error.message || 'Unknown error')}`);
+      }
+    }
+
+    async function logout() {
+      if (supabase) await supabase.auth.signOut();
+      currentUser = null;
+      currentProfile = null;
+      appSection.classList.add('hidden');
+      authSection.classList.remove('hidden');
+      employeeSection.classList.add('hidden');
+      managerSection.classList.add('hidden');
+    }
+
+    async function getCurrentSessionUser() {
+      if (!supabase) return null;
+      const { data } = await supabase.auth.getUser();
+      return data.user || null;
+    }
+
+    async function loadProfile() {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', currentUser.id)
+        .single();
+      if (error) throw error;
+      currentProfile = data;
+    }
+
+    async function loadVarieties() {
+      const { data, error } = await supabase
+        .from('varieties')
+        .select('*')
+        .order('visit_date', { ascending: false, nullsFirst: false });
+      if (error) throw error;
+      varieties = data || [];
+    }
+
+    async function loadEvaluationsForCurrentUser() {
+      if (currentProfile.role === 'manager') {
+        const { data, error } = await supabase
+          .from('evaluations')
+          .select('*')
+          .order('id', { ascending: false });
+        if (error) throw error;
+        evaluations = data || [];
+      } else {
+        const { data, error } = await supabase
+          .from('evaluations')
+          .select('*')
+          .eq('evaluator_id', currentUser.id)
+          .order('id', { ascending: false });
+        if (error) throw error;
+        evaluations = data || [];
+      }
+    }
+
+    async function loadAllProfiles() {
+      const { data, error } = await supabase.from('profiles').select('*');
+      if (error) throw error;
+      return data || [];
+    }
+
+    function renderStats() {
+      document.getElementById('statVarieties').textContent = String(varieties.length);
+      document.getElementById('statEvaluations').textContent = String(evaluations.length);
+      document.getElementById('statRole').textContent = currentProfile.role === 'manager' ? 'مدير' : 'موظف';
+      document.getElementById('statUser').textContent = currentProfile.full_name || currentProfile.email || '-';
+      document.getElementById('userPill').textContent = `${currentProfile.full_name || currentProfile.email} • ${currentProfile.role}`;
+      document.getElementById('userMetaText').textContent = `المستخدم الحالي: ${currentProfile.email} — الصلاحية: ${currentProfile.role}`;
     }
 
     function escapeHtml(text) {
@@ -331,373 +656,219 @@
         .replace(/'/g, '&#039;');
     }
 
-    function escapeAttr(text) {
-      return String(text ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
+    function getExistingEvaluation(varietyId) {
+      return evaluations.find(e => e.variety_id === varietyId && e.evaluator_id === currentUser.id);
     }
 
-    function showBox(element, type, message) {
-      element.innerHTML = `<div class="alert ${type}">${message}</div>`;
-    }
-
-    function showSetup(type, message) {
-      setupMessage.className = `alert ${type}`;
-      setupMessage.innerHTML = message;
-    }
-
-    function getConfig() {
-      try {
-        const raw = localStorage.getItem(CONFIG_KEY);
-        return raw ? JSON.parse(raw) : null;
-      } catch {
-        return null;
-      }
-    }
-
-    function saveConfig() {
-      const value = {
-        url: supabaseUrlInput.value.trim(),
-        anonKey: supabaseAnonKeyInput.value.trim(),
-        table: supabaseTableInput.value.trim() || 'nursery_reports',
-        bucket: supabaseBucketInput.value.trim() || 'nursery-media'
-      };
-      localStorage.setItem(CONFIG_KEY, JSON.stringify(value));
-      config = value;
-      createSupabaseClient();
-      showSetup('ok', 'تم حفظ الإعدادات محليًا. الآن اختبر الاتصال أو ابدأ الاستخدام.');
-    }
-
-    function loadConfigInputs() {
-      const current = getConfig();
-      if (!current) return;
-      supabaseUrlInput.value = current.url || '';
-      supabaseAnonKeyInput.value = current.anonKey || '';
-      supabaseTableInput.value = current.table || 'nursery_reports';
-      supabaseBucketInput.value = current.bucket || 'nursery-media';
-      config = current;
-    }
-
-    function createSupabaseClient() {
-      if (!config?.url || !config?.anonKey) {
-        supabase = null;
-        return;
-      }
-      supabase = createClient(config.url, config.anonKey);
-    }
-
-    async function testConnection() {
-      if (!supabase) {
-        showSetup('err', 'أدخل رابط المشروع والمفتاح أولاً ثم اضغط حفظ الإعدادات.');
-        return;
-      }
-      try {
-        const { error } = await supabase.from(config.table).select('id', { count: 'exact', head: true });
-        if (error) throw error;
-        showSetup('ok', 'الاتصال ناجح. الجدول متاح والنسخة الأونلاين جاهزة.');
-        await fetchItems();
-      } catch (error) {
-        showSetup('err', `فشل الاتصال: ${escapeHtml(error.message || 'Unknown error')}`);
-      }
-    }
-
-    function validateForm() {
-      if (!supabase) {
-        showBox(formMessage, 'err', 'يجب إعداد الربط السحابي أولاً.');
-        return false;
-      }
-      if (!varietyName.value.trim()) {
-        showBox(formMessage, 'err', 'فضلاً اكتب اسم الصنف.');
-        varietyName.focus();
-        return false;
-      }
-      formMessage.innerHTML = '';
-      return true;
-    }
-
-    async function uploadSingleFile(file, reportId) {
-      const extension = file.name.includes('.') ? file.name.split('.').pop() : 'file';
-      const safeName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
-      const path = `${reportId}/${safeName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from(config.bucket)
-        .upload(path, file, { cacheControl: '3600', upsert: false, contentType: file.type || undefined });
-
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage.from(config.bucket).getPublicUrl(path);
-      return {
-        name: file.name,
-        type: file.type || '',
-        path,
-        url: data.publicUrl
-      };
-    }
-
-    async function uploadMedia(files, reportId) {
-      const output = [];
-      for (const file of files) {
-        const uploaded = await uploadSingleFile(file, reportId);
-        output.push(uploaded);
-      }
-      return output;
-    }
-
-    async function saveItem() {
-      if (!validateForm()) return;
-
-      const reportId = editingId || uid();
-      const selectedFiles = Array.from(mediaFiles.files || []);
-      saveLoader.classList.add('show');
-
-      try {
-        let existingMedia = [];
-        if (editingId) {
-          const found = reportItems.find(x => x.id === editingId);
-          existingMedia = found?.media || [];
-        }
-
-        const uploadedMedia = selectedFiles.length ? await uploadMedia(selectedFiles, reportId) : [];
-        const payload = {
-          id: reportId,
-          variety_name: varietyName.value.trim(),
-          planting_type: plantingType.value.trim(),
-          visit_date: visitDate.value || null,
-          producer_company: producerCompany.value.trim(),
-          report_notes: reportNotes.value.trim(),
-          media: [...existingMedia, ...uploadedMedia],
-          updated_at: new Date().toISOString()
-        };
-
-        if (!editingId) {
-          payload.created_at = new Date().toISOString();
-        }
-
-        const { error } = await supabase.from(config.table).upsert(payload);
-        if (error) throw error;
-
-        showBox(formMessage, 'ok', 'تم حفظ الصنف في السحابة بنجاح.');
-        resetForm();
-        await fetchItems();
-      } catch (error) {
-        showBox(formMessage, 'err', `تعذر الحفظ: ${escapeHtml(error.message || 'Unknown error')}`);
-      } finally {
-        saveLoader.classList.remove('show');
-      }
-    }
-
-    async function fetchItems() {
-      if (!supabase) {
-        renderSavedList();
-        renderResults();
-        return;
-      }
-      try {
-        const { data, error } = await supabase
-          .from(config.table)
-          .select('*')
-          .order('visit_date', { ascending: false, nullsFirst: false })
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        reportItems = (data || []).map(row => ({
-          id: row.id,
-          varietyName: row.variety_name || '',
-          plantingType: row.planting_type || '',
-          visitDate: row.visit_date || '',
-          producerCompany: row.producer_company || '',
-          reportNotes: row.report_notes || '',
-          media: Array.isArray(row.media) ? row.media : [],
-          createdAt: row.created_at || '',
-          updatedAt: row.updated_at || ''
-        }));
-        renderSavedList();
-        renderResults();
-      } catch (error) {
-        renderSavedList();
-        renderResults();
-        showSetup('err', `تعذر جلب البيانات: ${escapeHtml(error.message || 'Unknown error')}`);
-      }
-    }
-
-    function resetForm() {
-      varietyName.value = '';
-      plantingType.value = '';
-      visitDate.value = '';
-      producerCompany.value = '';
-      reportNotes.value = '';
-      mediaFiles.value = '';
-      editingId = null;
-      document.getElementById('saveBtn').textContent = 'حفظ الصنف';
-    }
-
-    function editItem(id) {
-      const item = reportItems.find(x => x.id === id);
-      if (!item) return;
-      editingId = id;
-      varietyName.value = item.varietyName || '';
-      plantingType.value = item.plantingType || '';
-      visitDate.value = item.visitDate || '';
-      producerCompany.value = item.producerCompany || '';
-      reportNotes.value = item.reportNotes || '';
-      mediaFiles.value = '';
-      document.getElementById('saveBtn').textContent = 'تحديث الصنف';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    async function deleteItem(id) {
-      const item = reportItems.find(x => x.id === id);
-      if (!item) return;
-      if (!confirm(`هل تريد حذف الصنف: ${item.varietyName} ؟`)) return;
-
-      try {
-        for (const media of (item.media || [])) {
-          if (media.path) {
-            await supabase.storage.from(config.bucket).remove([media.path]);
-          }
-        }
-        const { error } = await supabase.from(config.table).delete().eq('id', id);
-        if (error) throw error;
-        if (editingId === id) resetForm();
-        await fetchItems();
-      } catch (error) {
-        alert(`تعذر حذف الصنف: ${error.message || 'Unknown error'}`);
-      }
-    }
-
-    async function removeMedia(itemId, mediaPath) {
-      const item = reportItems.find(x => x.id === itemId);
-      if (!item) return;
-      if (!confirm('هل تريد حذف هذا الملف؟')) return;
-
-      try {
-        if (mediaPath) {
-          const { error: storageError } = await supabase.storage.from(config.bucket).remove([mediaPath]);
-          if (storageError) throw storageError;
-        }
-
-        const updatedMedia = (item.media || []).filter(m => m.path !== mediaPath);
-        const { error } = await supabase
-          .from(config.table)
-          .update({ media: updatedMedia, updated_at: new Date().toISOString() })
-          .eq('id', itemId);
-
-        if (error) throw error;
-        await fetchItems();
-      } catch (error) {
-        alert(`تعذر حذف الملف: ${error.message || 'Unknown error'}`);
-      }
-    }
-
-    function renderSavedList() {
-      if (!reportItems.length) {
-        savedList.innerHTML = '<div class="empty">لا توجد أصناف محفوظة.</div>';
+    function renderVarieties() {
+      const wrap = document.getElementById('varietiesWrap');
+      if (!varieties.length) {
+        wrap.innerHTML = '<div class="empty">لا توجد أصناف مضافة حتى الآن.</div>';
         return;
       }
 
-      savedList.innerHTML = reportItems.map(item => `
-        <div class="mini-item">
-          <div class="mini-top">
-            <div class="mini-title">${escapeHtml(item.varietyName)}</div>
-            <span class="badge">${(item.media || []).length} ملف</span>
-          </div>
-          <div class="meta">
-            <span>نوع الزراعة: ${escapeHtml(item.plantingType || '-')}</span>
-            <span>التاريخ: ${escapeHtml(item.visitDate || '-')}</span>
-            <span>الشركة: ${escapeHtml(item.producerCompany || '-')}</span>
-          </div>
-          <div class="actions" style="margin-top:10px;">
-            <button class="btn-secondary" onclick="window.editItem('${item.id}')">تعديل</button>
-            <button class="btn-danger" onclick="window.deleteItem('${item.id}')">حذف</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function renderResults() {
-      const query = (searchInput.value || '').trim().toLowerCase();
-      let filtered = [...reportItems];
-
-      if (query) {
-        filtered = filtered.filter(item =>
-          (item.varietyName || '').toLowerCase().includes(query) ||
-          (item.producerCompany || '').toLowerCase().includes(query) ||
-          (item.plantingType || '').toLowerCase().includes(query)
-        );
-      }
-
-      if (!filtered.length) {
-        results.innerHTML = '<div class="empty">لا توجد نتائج مطابقة.</div>';
-        return;
-      }
-
-      results.innerHTML = filtered.map(item => `
-        <div class="report-card">
-          <div class="report-head">
-            <h3>${escapeHtml(item.varietyName)}</h3>
-            <div class="info-grid">
-              <div class="info-box"><span>اسم الصنف</span><strong>${escapeHtml(item.varietyName || '-')}</strong></div>
-              <div class="info-box"><span>نوع الزراعة</span><strong>${escapeHtml(item.plantingType || '-')}</strong></div>
-              <div class="info-box"><span>تاريخ الزيارة</span><strong>${escapeHtml(item.visitDate || '-')}</strong></div>
-              <div class="info-box"><span>الشركة المنتجة</span><strong>${escapeHtml(item.producerCompany || '-')}</strong></div>
+      wrap.innerHTML = varieties.map(v => {
+        const existing = getExistingEvaluation(v.id);
+        const mediaItems = Array.isArray(v.media) ? v.media : [];
+        return `
+          <div class="variety-card">
+            <div class="variety-head">
+              <h3>${escapeHtml(v.variety_name || '-')}</h3>
+              <div class="meta">
+                <span class="badge">${escapeHtml(v.planting_type || 'بدون نوع زراعة')}</span>
+                <span>الشركة: ${escapeHtml(v.producer_company || '-')}</span>
+                <span>الزيارة: ${escapeHtml(v.visit_date || '-')}</span>
+              </div>
+            </div>
+            <div class="variety-body">
+              <div class="notes">${escapeHtml(v.report_notes || 'لا توجد ملاحظات')}</div>
+              ${mediaItems.length ? `
+                <div class="media-grid">
+                  ${mediaItems.map(item => {
+                    const isVideo = String(item.type || '').startsWith('video/');
+                    return `
+                      <div class="media-card">
+                        ${isVideo
+                          ? `<video controls preload="metadata"><source src="${item.url}" type="${item.type || ''}"></video>`
+                          : `<img src="${item.url}" alt="media" />`}
+                        <a href="${item.url}" target="_blank">فتح الملف</a>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              ` : '<div class="empty">لا توجد صور أو فيديو.</div>'}
+              <div class="evaluation-box">
+                <strong>تقييم الصنف</strong>
+                <div class="star-row" data-stars-for="${v.id}">
+                  ${[1,2,3,4,5].map(n => `
+                    <button type="button" class="star-btn ${existing?.score === n ? 'active' : ''}" data-variety-id="${v.id}" data-score="${n}">${n}</button>
+                  `).join('')}
+                </div>
+                <textarea id="comment_${v.id}" placeholder="اكتب تعليقك على هذا الصنف...">${escapeHtml(existing?.comment || '')}</textarea>
+                <div class="actions">
+                  <button class="btn-primary" onclick="window.saveEvaluation('${v.id}')">حفظ التقييم</button>
+                  ${existing ? `<span class="badge">تم حفظ تقييم سابق</span>` : ''}
+                </div>
+              </div>
             </div>
           </div>
-          <div class="report-body">
-            <div class="notes">${escapeHtml(item.reportNotes || 'لا توجد ملاحظات مكتوبة لهذا الصنف.')}</div>
-            ${(item.media && item.media.length) ? `
-              <div class="media-grid">
-                ${item.media.map(media => {
-                  const isVideo = (media.type || '').startsWith('video/');
-                  const preview = isVideo
-                    ? `<video controls preload="metadata"><source src="${media.url}" type="${media.type}"></video>`
-                    : `<img src="${media.url}" alt="${escapeHtml(media.name)}" />`;
-                  return `
-                    <div class="media-card">
-                      ${preview}
-                      <div class="media-actions">
-                        <a class="btn-like btn-secondary" href="${media.url}" download="${escapeAttr(media.name)}">تحميل</a>
-                        <button class="btn-danger" onclick="window.removeMedia('${item.id}','${escapeAttr(media.path || '')}')">حذف الملف</button>
-                      </div>
-                    </div>
-                  `;
-                }).join('')}
-              </div>
-            ` : '<div class="empty">لا توجد صور أو فيديوهات لهذا الصنف.</div>'}
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
+
+      document.querySelectorAll('.star-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+          const varietyId = this.dataset.varietyId;
+          const score = Number(this.dataset.score);
+          document.querySelectorAll(`button[data-variety-id="${varietyId}"]`).forEach(x => x.classList.remove('active'));
+          this.classList.add('active');
+          this.closest('.evaluation-box').dataset.selectedScore = score;
+        });
+      });
+
+      varieties.forEach(v => {
+        const existing = getExistingEvaluation(v.id);
+        const box = document.querySelector(`button[data-variety-id="${v.id}"]`)?.closest('.evaluation-box');
+        if (box) box.dataset.selectedScore = existing?.score || '';
+      });
+    }
+
+    async function saveEvaluation(varietyId) {
+      clearBox(employeeMessage);
+      const box = document.querySelector(`button[data-variety-id="${varietyId}"]`)?.closest('.evaluation-box');
+      const selectedScore = Number(box?.dataset.selectedScore || 0);
+      const comment = document.getElementById(`comment_${varietyId}`).value.trim();
+
+      if (!selectedScore) {
+        showBox(employeeMessage, 'err', 'اختر درجة التقييم أولًا.');
+        return;
+      }
+
+      try {
+        const existing = getExistingEvaluation(varietyId);
+        if (existing) {
+          const { error } = await supabase
+            .from('evaluations')
+            .update({ score: selectedScore, comment })
+            .eq('id', existing.id)
+            .eq('evaluator_id', currentUser.id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase
+            .from('evaluations')
+            .insert({
+              variety_id: varietyId,
+              evaluator_id: currentUser.id,
+              score: selectedScore,
+              comment
+            });
+          if (error) throw error;
+        }
+
+        showBox(employeeMessage, 'ok', 'تم حفظ التقييم بنجاح.');
+        await refreshData();
+      } catch (error) {
+        showBox(employeeMessage, 'err', `تعذر حفظ التقييم: ${escapeHtml(error.message || 'Unknown error')}`);
+      }
+    }
+
+    async function renderManagerTable() {
+      if (currentProfile.role !== 'manager') return;
+
+      const [allProfiles, allVarieties] = await Promise.all([
+        loadAllProfiles(),
+        Promise.resolve(varieties)
+      ]);
+
+      const profileMap = Object.fromEntries(allProfiles.map(p => [p.id, p]));
+      const varietyMap = Object.fromEntries(allVarieties.map(v => [v.id, v]));
+
+      if (!evaluations.length) {
+        document.getElementById('managerTableWrap').innerHTML = '<div class="empty">لا توجد تقييمات حتى الآن.</div>';
+        return;
+      }
+
+      document.getElementById('managerTableWrap').innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>اسم المقيم</th>
+              <th>الإيميل</th>
+              <th>الصنف</th>
+              <th>الدرجة</th>
+              <th>التعليق</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${evaluations.map(ev => {
+              const p = profileMap[ev.evaluator_id] || {};
+              const v = varietyMap[ev.variety_id] || {};
+              return `
+                <tr>
+                  <td>${escapeHtml(p.full_name || '-')}</td>
+                  <td>${escapeHtml(p.email || '-')}</td>
+                  <td>${escapeHtml(v.variety_name || '-')}</td>
+                  <td>${escapeHtml(ev.score || '-')}</td>
+                  <td>${escapeHtml(ev.comment || '-')}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    async function refreshData() {
+      await loadVarieties();
+      await loadEvaluationsForCurrentUser();
+      renderStats();
+      employeeSection.classList.remove('hidden');
+      renderVarieties();
+      if (currentProfile.role === 'manager') {
+        managerSection.classList.remove('hidden');
+        await renderManagerTable();
+      } else {
+        managerSection.classList.add('hidden');
+      }
+    }
+
+    async function bootApp() {
+      try {
+        currentUser = currentUser || await getCurrentSessionUser();
+        if (!currentUser) {
+          appSection.classList.add('hidden');
+          authSection.classList.remove('hidden');
+          return;
+        }
+        await loadProfile();
+        authSection.classList.add('hidden');
+        appSection.classList.remove('hidden');
+        await refreshData();
+      } catch (error) {
+        showBox(authMessage, 'err', `تعذر تحميل الحساب: ${escapeHtml(error.message || 'Unknown error')}`);
+        authSection.classList.remove('hidden');
+        appSection.classList.add('hidden');
+      }
     }
 
     document.getElementById('saveSetupBtn').addEventListener('click', saveConfig);
-    document.getElementById('testConnectionBtn').addEventListener('click', testConnection);
-    document.getElementById('saveBtn').addEventListener('click', saveItem);
-    document.getElementById('resetBtn').addEventListener('click', resetForm);
-    document.getElementById('showResultsBtn').addEventListener('click', () => {
-      document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      renderResults();
+    document.getElementById('testSetupBtn').addEventListener('click', async () => {
+      buildClient();
+      await testConnection();
     });
-    document.getElementById('refreshResultsBtn').addEventListener('click', renderResults);
-    document.getElementById('refreshCloudBtn').addEventListener('click', fetchItems);
-    document.getElementById('printBtn').addEventListener('click', () => window.print());
-    searchInput.addEventListener('input', renderResults);
+    document.getElementById('loginBtn').addEventListener('click', login);
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+    document.getElementById('refreshBtn').addEventListener('click', refreshData);
 
-    loadConfigInputs();
-    createSupabaseClient();
-    renderSavedList();
-    renderResults();
+    window.saveEvaluation = saveEvaluation;
 
+    loadConfig();
+    buildClient();
     if (supabase) {
-      showSetup('ok', 'تم العثور على إعدادات محفوظة. اختبر الاتصال أو اضغط تحديث من السحابة.');
-      fetchItems();
+      getCurrentSessionUser().then(user => {
+        currentUser = user;
+        if (currentUser) bootApp();
+      });
     }
-
-    window.editItem = editItem;
-    window.deleteItem = deleteItem;
-    window.removeMedia = removeMedia;
   </script>
 </body>
 </html>
