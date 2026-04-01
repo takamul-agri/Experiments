@@ -207,21 +207,6 @@
       border-color: var(--warn-border);
     }
 
-    .debug {
-      margin-top: 14px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: #f8fafc;
-      border: 1px dashed var(--border);
-      font-size: 13px;
-      color: #334155;
-      line-height: 1.8;
-      white-space: pre-wrap;
-      min-height: 72px;
-      max-height: 220px;
-      overflow: auto;
-    }
-
     .hidden { display: none !important; }
 
     .dashboard {
@@ -272,6 +257,23 @@
       word-break: break-word;
     }
 
+    .forgot-wrap {
+      margin-top: 16px;
+      text-align: center;
+    }
+
+    .forgot-link {
+      color: var(--primary);
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .forgot-link:hover {
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
+
     @media (max-width: 700px) {
       .container {
         width: min(100% - 16px, 960px);
@@ -316,11 +318,13 @@
 
       <div class="actions">
         <button id="loginBtn" class="btn-primary" type="button">دخول</button>
-        <button id="testProfileBtn" class="btn-secondary" type="button">اختبار profiles</button>
       </div>
 
       <div id="authMessage"></div>
-      <div id="debugBox" class="debug">جاهز.</div>
+
+      <div class="forgot-wrap">
+        <a class="forgot-link" href="forgot-password.html">نسيت كلمة المرور؟</a>
+      </div>
     </div>
 
     <div id="appSection" class="card dashboard hidden">
@@ -404,12 +408,10 @@
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const reloadBtn = document.getElementById('reloadBtn');
-    const testProfileBtn = document.getElementById('testProfileBtn');
     const adminAddUserBtn = document.getElementById('adminAddUserBtn');
 
     const authMessage = document.getElementById('authMessage');
     const appMessage = document.getElementById('appMessage');
-    const debugBox = document.getElementById('debugBox');
 
     function showBox(target, type, message) {
       target.innerHTML = `<div class="alert ${type}">${message}</div>`;
@@ -417,17 +419,6 @@
 
     function clearBox(target) {
       target.innerHTML = '';
-    }
-
-    function logStep(message) {
-      const time = new Date().toLocaleTimeString('ar-SA');
-      debugBox.textContent += `\n[${time}] ${message}`;
-      debugBox.scrollTop = debugBox.scrollHeight;
-      console.log(message);
-    }
-
-    function resetDebug(message = 'جاهز.') {
-      debugBox.textContent = message;
     }
 
     function escapeHtml(text) {
@@ -441,7 +432,6 @@
 
     function setLoading(loading) {
       loginBtn.disabled = loading;
-      testProfileBtn.disabled = loading;
       loginBtn.textContent = loading ? 'جاري تسجيل الدخول...' : 'دخول';
     }
 
@@ -461,10 +451,8 @@
       if (canSeeAdminButton) {
         adminAddUserBtn.classList.remove('hidden');
         adminAddUserBtn.href = ADMIN_PAGE_URL;
-        logStep(`زر إضافة موظف ظاهر لأن الدور الحالي هو: ${userRole}`);
       } else {
         adminAddUserBtn.classList.add('hidden');
-        logStep(`زر إضافة موظف مخفي لأن الدور الحالي ليس أدمن: ${userRole || 'غير محدد'}`);
       }
     }
 
@@ -528,14 +516,12 @@
         if (!currentUser || isLoggingOut) return;
 
         if (isSessionExpired()) {
-          logStep('انتهت الجلسة بسبب عدم النشاط لمدة 30 دقيقة.');
           await forceLogoutDueToTimeout();
         }
       }, 15000);
     }
 
     async function loadProfileStrict(userId) {
-      logStep('بدء قراءة profiles...');
       const result = await withTimeout(
         supabase
           .from('profiles')
@@ -557,7 +543,6 @@
       }
 
       currentProfile = data;
-      logStep('تم تحميل البروفايل بنجاح.');
       return data;
     }
 
@@ -591,16 +576,13 @@
 
       try {
         await supabase.auth.signOut();
-      } catch (err) {
-        console.error(err);
-      }
+      } catch (err) {}
 
       currentUser = null;
       currentProfile = null;
       clearLastActivity();
       loginPasswordInput.value = '';
       goToAuth();
-      resetDebug('تم إنهاء الجلسة بسبب عدم النشاط.');
       showBox(authMessage, 'warn', 'انتهت الجلسة بسبب عدم النشاط لمدة 30 دقيقة. يرجى تسجيل الدخول مرة أخرى.');
       stopInactivityWatcher();
       isLoggingOut = false;
@@ -609,7 +591,6 @@
     async function login() {
       clearBox(authMessage);
       clearBox(appMessage);
-      resetDebug('بدء محاولة تسجيل الدخول...');
 
       const email = loginEmailInput.value.trim();
       const password = loginPasswordInput.value.trim();
@@ -622,7 +603,6 @@
       try {
         setLoading(true);
 
-        logStep('تنفيذ signInWithPassword...');
         const { data, error } = await withTimeout(
           supabase.auth.signInWithPassword({ email, password }),
           15000,
@@ -638,7 +618,6 @@
         }
 
         currentUser = data.user;
-        logStep(`تم تسجيل الدخول في Auth بنجاح. user.id = ${currentUser.id}`);
 
         await loadProfileStrict(currentUser.id);
 
@@ -663,40 +642,7 @@
           msg = 'فشل الاتصال بـ Supabase. تحقق من الإنترنت أو من المتصفح أو من حظر الشبكة.';
         }
 
-        logStep(`خطأ: ${msg}`);
         showBox(authMessage, 'err', escapeHtml(msg));
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    async function testProfiles() {
-      clearBox(authMessage);
-      resetDebug('اختبار الوصول إلى جدول profiles...');
-
-      try {
-        setLoading(true);
-
-        const { data, error } = await withTimeout(
-          supabase.from('profiles').select('id, email, full_name, role').limit(3),
-          10000,
-          'اختبار profiles'
-        );
-
-        if (error) {
-          throw new Error(error.message);
-        }
-
-        logStep('نجح الوصول إلى جدول profiles.');
-        showBox(
-          authMessage,
-          'ok',
-          `تم الوصول إلى profiles بنجاح.\nعدد السجلات التي رجعت في الاختبار: ${Array.isArray(data) ? data.length : 0}`
-        );
-      } catch (err) {
-        let msg = err?.message || 'فشل اختبار profiles';
-        logStep(`خطأ الاختبار: ${msg}`);
-        showBox(authMessage, 'warn', escapeHtml(`تعذر قراءة profiles: ${msg}`));
       } finally {
         setLoading(false);
       }
@@ -704,7 +650,6 @@
 
     async function reloadSession() {
       clearBox(appMessage);
-      resetDebug('إعادة تحميل الجلسة الحالية...');
 
       try {
         if (isSessionExpired()) {
@@ -720,7 +665,6 @@
         }
 
         currentUser = data.user;
-        logStep(`تم جلب الجلسة. user.id = ${currentUser.id}`);
         await loadProfileStrict(currentUser.id);
 
         setLastActivityNow();
@@ -735,7 +679,6 @@
 
     async function logout() {
       clearBox(appMessage);
-      resetDebug('تسجيل الخروج...');
 
       try {
         isLoggingOut = true;
@@ -746,7 +689,6 @@
         loginPasswordInput.value = '';
         goToAuth();
         stopInactivityWatcher();
-        logStep('تم تسجيل الخروج.');
       } catch (err) {
         showBox(appMessage, 'err', escapeHtml(err.message || 'تعذر تسجيل الخروج'));
       } finally {
@@ -755,10 +697,8 @@
     }
 
     async function boot() {
-      resetDebug('فحص الجلسة الحالية...');
       try {
         if (isSessionExpired()) {
-          logStep('تم العثور على جلسة منتهية.');
           await supabase.auth.signOut();
           clearLastActivity();
           goToAuth();
@@ -770,14 +710,11 @@
         if (error) throw error;
 
         if (!data.user) {
-          logStep('لا توجد جلسة محفوظة.');
           goToAuth();
           return;
         }
 
         currentUser = data.user;
-        logStep(`وجدت جلسة محفوظة داخل نفس التبويب. user.id = ${currentUser.id}`);
-
         await loadProfileStrict(currentUser.id);
 
         setLastActivityNow();
@@ -786,15 +723,12 @@
         goToApp();
         showBox(appMessage, 'ok', 'تم استعادة الجلسة داخل نفس التبويب.');
       } catch (err) {
-        logStep(`فشل boot: ${err.message || err}`);
         clearLastActivity();
         goToAuth();
       }
     }
 
     supabase.auth.onAuthStateChange((event) => {
-      logStep(`Auth event: ${event}`);
-
       if (event === 'SIGNED_OUT') {
         currentUser = null;
         currentProfile = null;
@@ -811,7 +745,6 @@
     loginBtn.addEventListener('click', login);
     logoutBtn.addEventListener('click', logout);
     reloadBtn.addEventListener('click', reloadSession);
-    testProfileBtn.addEventListener('click', testProfiles);
 
     loginPasswordInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') login();
@@ -819,7 +752,6 @@
 
     document.addEventListener('visibilitychange', async () => {
       if (document.visibilityState === 'visible' && currentUser && isSessionExpired()) {
-        logStep('انتهت الجلسة أثناء بقاء الصفحة مفتوحة بدون نشاط.');
         await forceLogoutDueToTimeout();
       }
     });
