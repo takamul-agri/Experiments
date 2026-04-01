@@ -6,13 +6,13 @@
   <title>إدارة المستخدمين</title>
   <style>
     :root {
-      --bg: #f4f7fb;
+      --bg: #ffffff;
       --card: #ffffff;
       --text: #1f2937;
       --muted: #6b7280;
-      --primary: #0f766e;
-      --primary-dark: #115e59;
-      --primary-soft: #e7f5f3;
+      --primary: #018f45;
+      --primary-dark: #01753a;
+      --primary-soft: #eef8f2;
       --border: #dbe3ea;
       --danger: #b91c1c;
       --danger-bg: #fff3f3;
@@ -20,7 +20,7 @@
       --ok-bg: #ecfdf5;
       --warn: #92400e;
       --warn-bg: #fff7ed;
-      --shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+      --shadow: 0 10px 28px rgba(0,0,0,0.08);
       --radius: 24px;
     }
 
@@ -31,7 +31,7 @@
     body {
       margin: 0;
       font-family: Tahoma, Arial, sans-serif;
-      background: linear-gradient(180deg, #f8fbfd 0%, #edf3f7 100%);
+      background: var(--bg);
       color: var(--text);
     }
 
@@ -41,30 +41,26 @@
     }
 
     .hero {
-      background: linear-gradient(135deg, #0f766e, #134e4a);
+      background: linear-gradient(135deg, #018f45, #01753a);
       color: #fff;
       border-radius: 28px;
       padding: 28px 26px;
       box-shadow: var(--shadow);
       margin-bottom: 20px;
+      position: relative;
     }
 
     .hero h1 {
-      margin: 0 0 10px;
+      margin: 0;
       font-size: clamp(28px, 4vw, 54px);
       line-height: 1.2;
-    }
-
-    .hero p {
-      margin: 0;
-      color: rgba(255,255,255,0.92);
-      font-size: 17px;
-      line-height: 1.9;
+      text-align: center;
     }
 
     .hero-actions {
       margin-top: 18px;
       display: flex;
+      justify-content: flex-start;
       gap: 10px;
       flex-wrap: wrap;
     }
@@ -135,7 +131,7 @@
 
     input:focus, select:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 4px rgba(15,118,110,0.1);
+      box-shadow: 0 0 0 4px rgba(1,143,69,0.10);
     }
 
     .actions {
@@ -167,11 +163,11 @@
     .btn-secondary {
       background: var(--primary-soft);
       color: var(--primary-dark);
-      border: 1px solid #cfe7e4;
+      border: 1px solid #cfe7d6;
     }
 
     .btn-secondary:hover {
-      background: #dcf0ed;
+      background: #e4f3e8;
     }
 
     .btn-danger {
@@ -185,6 +181,9 @@
       color: #fff;
       border: 1px solid rgba(255,255,255,0.28);
       backdrop-filter: blur(8px);
+      padding: 9px 14px;
+      font-size: 14px;
+      border-radius: 14px;
     }
 
     .btn-home:hover {
@@ -192,9 +191,9 @@
     }
 
     .pill {
-      background: var(--primary-soft);
+      background: #eef8f2;
       color: var(--primary-dark);
-      border: 1px solid #cfe7e4;
+      border: 1px solid #cfe7d6;
       padding: 10px 14px;
       border-radius: 999px;
       font-size: 14px;
@@ -292,6 +291,21 @@
       margin-top: 14px;
     }
 
+    .footer-logos {
+      width: 100%;
+      text-align: center;
+      margin-top: 36px;
+      padding: 8px 0 0;
+    }
+
+    .footer-logos img {
+      max-width: min(92%, 720px);
+      width: 100%;
+      height: auto;
+      display: inline-block;
+      object-fit: contain;
+    }
+
     @media (max-width: 860px) {
       .grid {
         grid-template-columns: 1fr;
@@ -308,6 +322,10 @@
 
       .title-row h2 {
         font-size: 24px;
+      }
+
+      .hero-actions {
+        justify-content: center;
       }
 
       table, thead, tbody, th, td, tr {
@@ -341,10 +359,9 @@
   <div class="container">
     <div class="hero">
       <h1>إدارة المدراء والموظفين</h1>
-      <p>صفحة داخلية لإضافة المستخدمين الجدد وتعديل صلاحياتهم وعرض كل الحسابات بشكل مرتب وواضح.</p>
 
       <div class="hero-actions">
-        <button onclick="goHome()" class="btn-home" type="button">🏠 الرجوع إلى الصفحة الرئيسية</button>
+        <button onclick="goHome()" class="btn-home" type="button">الرجوع إلى الصفحة الرئيسية</button>
       </div>
     </div>
 
@@ -400,6 +417,10 @@
 
       <div id="tableMsg"></div>
       <div id="usersBox" class="table-wrap"></div>
+    </div>
+
+    <div class="footer-logos">
+      <img src="https://pub-cd0f58e55c564e2eb5b6faa013d69fd6.r2.dev/sigen.jpg" alt="الشعارات" />
     </div>
   </div>
 
