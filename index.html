@@ -359,6 +359,7 @@
 
     const authSection = document.getElementById('authSection');
     const appSection = document.getElementById('appSection');
+    const adminUsersBtn = document.getElementById('adminUsersBtn');
 
     const loginEmailInput = document.getElementById('loginEmail');
     const loginPasswordInput = document.getElementById('loginPassword');
@@ -447,12 +448,19 @@
     }
 
     function fillDashboard() {
-      document.getElementById('userId').textContent = currentUser?.id || '-';
-      document.getElementById('userEmail').textContent = currentProfile?.email || currentUser?.email || '-';
-      document.getElementById('userName').textContent = currentProfile?.full_name || '-';
-      document.getElementById('userRole').textContent = currentProfile?.role || '-';
-      document.getElementById('userPill').textContent = `${currentProfile?.full_name || currentUser?.email || '-'} • ${currentProfile?.role || '-'}`;
-    }
+  document.getElementById('userId').textContent = currentUser?.id || '-';
+  document.getElementById('userEmail').textContent = currentProfile?.email || currentUser?.email || '-';
+  document.getElementById('userName').textContent = currentProfile?.full_name || '-';
+  document.getElementById('userRole').textContent = currentProfile?.role || '-';
+  document.getElementById('userPill').textContent =
+    `${currentProfile?.full_name || currentUser?.email || '-'} • ${currentProfile?.role || '-'}`;
+
+  // 🔥 إظهار زر الإدارة فقط للمدير
+  if (currentProfile?.role === 'manager') {
+    adminUsersBtn.classList.remove('hidden');
+  } else {
+    adminUsersBtn.classList.add('hidden');
+  }
 
     function goToApp() {
       authSection.classList.add('hidden');
