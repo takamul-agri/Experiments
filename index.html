@@ -419,7 +419,7 @@
           .from('profiles')
           .select('id, email, full_name, role')
           .eq('id', userId)
-          .maybeSingle(),
+          .single(),
         10000,
         'قراءة profiles'
       );
