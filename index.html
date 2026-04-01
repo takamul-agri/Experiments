@@ -375,12 +375,25 @@
     const SUPABASE_URL = 'https://epqgayhsmnqbfdliqhil.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_0TKEiHetpDjyrRdjFdKu6Q_cAwFkWC7';
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const SESSION_TIMEOUT_MINUTES = 30;
+    const SESSION_TIMEOUT_MS = SESSION_TIMEOUT_MINUTES * 60 * 1000;
+    const LAST_ACTIVITY_KEY = 'nawarah_last_activity_at';
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storage: window.sessionStorage
+      }
+    });
 
     const ADMIN_PAGE_URL = 'https://takamul-agri.github.io/nawarah-report/admin-users.html';
 
     let currentUser = null;
     let currentProfile = null;
+    let inactivityInterval = null;
+    let isLoggingOut = false;
 
     const authSection = document.getElementById('authSection');
     const appSection = document.getElementById('appSection');
@@ -468,6 +481,59 @@
       }
     }
 
+    function setLastActivityNow() {
+      sessionStorage.setItem(LAST_ACTIVITY_KEY, String(Date.now()));
+    }
+
+    function getLastActivityAt() {
+      const raw = sessionStorage.getItem(LAST_ACTIVITY_KEY);
+      const value = Number(raw);
+      return Number.isFinite(value) && value > 0 ? value : 0;
+    }
+
+    function clearLastActivity() {
+      sessionStorage.removeItem(LAST_ACTIVITY_KEY);
+    }
+
+    function isSessionExpired() {
+      const lastActivityAt = getLastActivityAt();
+      if (!lastActivityAt) return false;
+      return Date.now() - lastActivityAt > SESSION_TIMEOUT_MS;
+    }
+
+    function stopInactivityWatcher() {
+      if (inactivityInterval) {
+        clearInterval(inactivityInterval);
+        inactivityInterval = null;
+      }
+    }
+
+    function startInactivityWatcher() {
+      stopInactivityWatcher();
+
+      const activityEvents = ['click', 'keydown', 'mousemove', 'scroll', 'touchstart'];
+
+      const activityHandler = () => {
+        if (currentUser) {
+          setLastActivityNow();
+        }
+      };
+
+      activityEvents.forEach((eventName) => {
+        window.removeEventListener(eventName, activityHandler, true);
+        window.addEventListener(eventName, activityHandler, true);
+      });
+
+      inactivityInterval = setInterval(async () => {
+        if (!currentUser || isLoggingOut) return;
+
+        if (isSessionExpired()) {
+          logStep('انتهت الجلسة بسبب عدم النشاط لمدة 30 دقيقة.');
+          await forceLogoutDueToTimeout();
+        }
+      }, 15000);
+    }
+
     async function loadProfileStrict(userId) {
       logStep('بدء قراءة profiles...');
       const result = await withTimeout(
@@ -517,6 +583,29 @@
       adminAddUserBtn.classList.add('hidden');
     }
 
+    async function forceLogoutDueToTimeout() {
+      if (isLoggingOut) return;
+
+      isLoggingOut = true;
+      clearBox(appMessage);
+
+      try {
+        await supabase.auth.signOut();
+      } catch (err) {
+        console.error(err);
+      }
+
+      currentUser = null;
+      currentProfile = null;
+      clearLastActivity();
+      loginPasswordInput.value = '';
+      goToAuth();
+      resetDebug('تم إنهاء الجلسة بسبب عدم النشاط.');
+      showBox(authMessage, 'warn', 'انتهت الجلسة بسبب عدم النشاط لمدة 30 دقيقة. يرجى تسجيل الدخول مرة أخرى.');
+      stopInactivityWatcher();
+      isLoggingOut = false;
+    }
+
     async function login() {
       clearBox(authMessage);
       clearBox(appMessage);
@@ -553,11 +642,15 @@
 
         await loadProfileStrict(currentUser.id);
 
+        setLastActivityNow();
+        startInactivityWatcher();
+
         showBox(authMessage, 'ok', 'تم تسجيل الدخول وتحميل البروفايل بنجاح.');
         goToApp();
       } catch (err) {
         currentUser = null;
         currentProfile = null;
+        clearLastActivity();
         goToAuth();
 
         let msg = err?.message || 'حدث خطأ غير معروف';
@@ -614,6 +707,11 @@
       resetDebug('إعادة تحميل الجلسة الحالية...');
 
       try {
+        if (isSessionExpired()) {
+          await forceLogoutDueToTimeout();
+          return;
+        }
+
         const { data, error } = await supabase.auth.getUser();
         if (error) throw error;
 
@@ -624,6 +722,10 @@
         currentUser = data.user;
         logStep(`تم جلب الجلسة. user.id = ${currentUser.id}`);
         await loadProfileStrict(currentUser.id);
+
+        setLastActivityNow();
+        startInactivityWatcher();
+
         fillDashboard();
         showBox(appMessage, 'ok', 'تم تحديث بيانات الجلسة والبروفايل.');
       } catch (err) {
@@ -636,20 +738,34 @@
       resetDebug('تسجيل الخروج...');
 
       try {
+        isLoggingOut = true;
         await supabase.auth.signOut();
         currentUser = null;
         currentProfile = null;
+        clearLastActivity();
         loginPasswordInput.value = '';
         goToAuth();
+        stopInactivityWatcher();
         logStep('تم تسجيل الخروج.');
       } catch (err) {
         showBox(appMessage, 'err', escapeHtml(err.message || 'تعذر تسجيل الخروج'));
+      } finally {
+        isLoggingOut = false;
       }
     }
 
     async function boot() {
       resetDebug('فحص الجلسة الحالية...');
       try {
+        if (isSessionExpired()) {
+          logStep('تم العثور على جلسة منتهية.');
+          await supabase.auth.signOut();
+          clearLastActivity();
+          goToAuth();
+          showBox(authMessage, 'warn', 'انتهت الجلسة السابقة بسبب عدم النشاط. يرجى تسجيل الدخول مرة أخرى.');
+          return;
+        }
+
         const { data, error } = await supabase.auth.getUser();
         if (error) throw error;
 
@@ -660,16 +776,37 @@
         }
 
         currentUser = data.user;
-        logStep(`وجدت جلسة محفوظة. user.id = ${currentUser.id}`);
+        logStep(`وجدت جلسة محفوظة داخل نفس التبويب. user.id = ${currentUser.id}`);
 
         await loadProfileStrict(currentUser.id);
+
+        setLastActivityNow();
+        startInactivityWatcher();
+
         goToApp();
-        showBox(appMessage, 'ok', 'تم الدخول تلقائيًا من الجلسة المحفوظة.');
+        showBox(appMessage, 'ok', 'تم استعادة الجلسة داخل نفس التبويب.');
       } catch (err) {
         logStep(`فشل boot: ${err.message || err}`);
+        clearLastActivity();
         goToAuth();
       }
     }
+
+    supabase.auth.onAuthStateChange((event) => {
+      logStep(`Auth event: ${event}`);
+
+      if (event === 'SIGNED_OUT') {
+        currentUser = null;
+        currentProfile = null;
+        clearLastActivity();
+        stopInactivityWatcher();
+        goToAuth();
+      }
+
+      if (event === 'SIGNED_IN') {
+        setLastActivityNow();
+      }
+    });
 
     loginBtn.addEventListener('click', login);
     logoutBtn.addEventListener('click', logout);
@@ -678,6 +815,19 @@
 
     loginPasswordInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') login();
+    });
+
+    document.addEventListener('visibilitychange', async () => {
+      if (document.visibilityState === 'visible' && currentUser && isSessionExpired()) {
+        logStep('انتهت الجلسة أثناء بقاء الصفحة مفتوحة بدون نشاط.');
+        await forceLogoutDueToTimeout();
+      }
+    });
+
+    window.addEventListener('beforeunload', () => {
+      if (currentUser) {
+        setLastActivityNow();
+      }
     });
 
     boot();
