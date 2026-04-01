@@ -131,7 +131,8 @@
       margin-top: 16px;
     }
 
-    button {
+    button,
+    .btn-link {
       border: none;
       border-radius: 14px;
       padding: 12px 16px;
@@ -139,6 +140,10 @@
       font-weight: 700;
       cursor: pointer;
       transition: 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .btn-primary {
@@ -154,10 +159,24 @@
       border: 1px solid #cfe7e4;
     }
 
+    .btn-secondary:hover {
+      background: #e3f3f1;
+    }
+
     .btn-danger {
       background: #fff5f5;
       color: #b91c1c;
       border: 1px solid #fecaca;
+    }
+
+    .btn-admin {
+      background: #0b5ed7;
+      color: #fff;
+      border: 1px solid #0a58ca;
+    }
+
+    .btn-admin:hover {
+      background: #0a58ca;
     }
 
     .alert {
@@ -199,6 +218,8 @@
       line-height: 1.8;
       white-space: pre-wrap;
       min-height: 72px;
+      max-height: 220px;
+      overflow: auto;
     }
 
     .hidden { display: none !important; }
@@ -267,7 +288,6 @@
     }
   </style>
 </head>
-
 <body>
   <div class="container">
     <div class="header">
@@ -284,123 +304,383 @@
 
       <div class="form-grid">
         <div class="field">
-          <label>الإيميل</label>
-          <input id="loginEmail" type="email" />
+          <label for="loginEmail">الإيميل</label>
+          <input id="loginEmail" type="email" autocomplete="email" placeholder="example@company.com" />
         </div>
 
         <div class="field">
-          <label>كلمة المرور</label>
-          <input id="loginPassword" type="password" />
+          <label for="loginPassword">كلمة المرور</label>
+          <input id="loginPassword" type="password" autocomplete="current-password" placeholder="••••••••" />
         </div>
       </div>
 
       <div class="actions">
-        <button id="loginBtn" class="btn-primary">دخول</button>
+        <button id="loginBtn" class="btn-primary" type="button">دخول</button>
+        <button id="testProfileBtn" class="btn-secondary" type="button">اختبار profiles</button>
       </div>
 
       <div id="authMessage"></div>
-      <div id="debugBox" class="debug"></div>
+      <div id="debugBox" class="debug">جاهز.</div>
     </div>
 
     <div id="appSection" class="card dashboard hidden">
-
       <div class="topbar">
         <div>
-          <h2>تم تسجيل الدخول</h2>
+          <h2>تم تسجيل الدخول بنجاح</h2>
+          <div class="hint">هذه الصفحة تظهر إذا نجح Auth ونجح تحميل البروفايل.</div>
         </div>
 
         <div class="actions">
           <div id="userPill" class="pill">-</div>
 
-          <!-- 🔥 زر الادمن -->
-          <button id="adminBtn" class="btn-primary hidden">➕ إضافة موظف</button>
+          <a
+            id="adminAddUserBtn"
+            class="btn-link btn-admin hidden"
+            href="https://takamul-agri.github.io/nawarah-report/admin-users.html"
+          >
+            إضافة موظف جديد
+          </a>
 
-          <button id="logoutBtn" class="btn-danger">تسجيل الخروج</button>
+          <button id="reloadBtn" class="btn-secondary" type="button">إعادة تحميل</button>
+          <button id="logoutBtn" class="btn-danger" type="button">تسجيل الخروج</button>
         </div>
       </div>
 
       <div class="info-grid">
         <div class="info-box">
-          <span>الإيميل</span>
-          <strong id="userEmail"></strong>
+          <span>معرّف المستخدم</span>
+          <strong id="userId">-</strong>
         </div>
-
+        <div class="info-box">
+          <span>الإيميل</span>
+          <strong id="userEmail">-</strong>
+        </div>
+        <div class="info-box">
+          <span>الاسم</span>
+          <strong id="userName">-</strong>
+        </div>
         <div class="info-box">
           <span>الدور</span>
-          <strong id="userRole"></strong>
+          <strong id="userRole">-</strong>
         </div>
       </div>
 
+      <div id="appMessage"></div>
     </div>
   </div>
 
-<script type="module">
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const supabase = createClient(
-  'https://epqgayhsmnqbfdliqhil.supabase.co',
-  'sb_publishable_0TKEiHetpDjyrRdjFdKu6Q_cAwFkWC7'
-);
+    const SUPABASE_URL = 'https://epqgayhsmnqbfdliqhil.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_0TKEiHetpDjyrRdjFdKu6Q_cAwFkWC7';
 
-let currentUser = null;
-let currentProfile = null;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const loginBtn = document.getElementById('loginBtn');
-const logoutBtn = document.getElementById('logoutBtn');
-const adminBtn = document.getElementById('adminBtn');
+    const ADMIN_PAGE_URL = 'https://takamul-agri.github.io/nawarah-report/admin-users.html';
 
-const loginEmail = document.getElementById('loginEmail');
-const loginPassword = document.getElementById('loginPassword');
+    let currentUser = null;
+    let currentProfile = null;
 
-const authSection = document.getElementById('authSection');
-const appSection = document.getElementById('appSection');
+    const authSection = document.getElementById('authSection');
+    const appSection = document.getElementById('appSection');
 
-async function login() {
+    const loginEmailInput = document.getElementById('loginEmail');
+    const loginPasswordInput = document.getElementById('loginPassword');
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: loginEmail.value,
-    password: loginPassword.value
-  });
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const reloadBtn = document.getElementById('reloadBtn');
+    const testProfileBtn = document.getElementById('testProfileBtn');
+    const adminAddUserBtn = document.getElementById('adminAddUserBtn');
 
-  if (error) {
-    alert(error.message);
-    return;
-  }
+    const authMessage = document.getElementById('authMessage');
+    const appMessage = document.getElementById('appMessage');
+    const debugBox = document.getElementById('debugBox');
 
-  currentUser = data.user;
+    function showBox(target, type, message) {
+      target.innerHTML = `<div class="alert ${type}">${message}</div>`;
+    }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', currentUser.id)
-    .single();
+    function clearBox(target) {
+      target.innerHTML = '';
+    }
 
-  currentProfile = profile;
+    function logStep(message) {
+      const time = new Date().toLocaleTimeString('ar-SA');
+      debugBox.textContent += `\n[${time}] ${message}`;
+      debugBox.scrollTop = debugBox.scrollHeight;
+      console.log(message);
+    }
 
-  authSection.classList.add('hidden');
-  appSection.classList.remove('hidden');
+    function resetDebug(message = 'جاهز.') {
+      debugBox.textContent = message;
+    }
 
-  document.getElementById('userEmail').textContent = currentUser.email;
-  document.getElementById('userRole').textContent = profile.role;
+    function escapeHtml(text) {
+      return String(text ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
 
-  // 🔥 شرط الادمن
-  if (profile.role === 'admin') {
-    adminBtn.classList.remove('hidden');
-  }
-}
+    function setLoading(loading) {
+      loginBtn.disabled = loading;
+      testProfileBtn.disabled = loading;
+      loginBtn.textContent = loading ? 'جاري تسجيل الدخول...' : 'دخول';
+    }
 
-// 🔥 زر الادمن
-adminBtn.addEventListener('click', () => {
-  window.location.href = 'https://takamul-agri.github.io/nawarah-report/admin-users.html';
-});
+    function normalizeRole(role) {
+      return String(role || '').trim().toLowerCase();
+    }
 
-logoutBtn.addEventListener('click', async () => {
-  await supabase.auth.signOut();
-  location.reload();
-});
+    function isAdminRole(role) {
+      const normalized = normalizeRole(role);
+      return ['admin', 'administrator', 'super_admin', 'superadmin', 'manager', 'مدير', 'أدمن', 'admin_user'].includes(normalized);
+    }
 
-loginBtn.addEventListener('click', login);
+    function toggleAdminButton() {
+      const userRole = currentProfile?.role || '';
+      const canSeeAdminButton = isAdminRole(userRole);
 
-</script>
+      if (canSeeAdminButton) {
+        adminAddUserBtn.classList.remove('hidden');
+        adminAddUserBtn.href = ADMIN_PAGE_URL;
+        logStep(`زر إضافة موظف ظاهر لأن الدور الحالي هو: ${userRole}`);
+      } else {
+        adminAddUserBtn.classList.add('hidden');
+        logStep(`زر إضافة موظف مخفي لأن الدور الحالي ليس أدمن: ${userRole || 'غير محدد'}`);
+      }
+    }
+
+    async function withTimeout(promise, ms, label) {
+      let timer;
+      const timeoutPromise = new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`انتهت مهلة ${label} بعد ${ms / 1000} ثوانٍ`)), ms);
+      });
+
+      try {
+        return await Promise.race([promise, timeoutPromise]);
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    async function loadProfileStrict(userId) {
+      logStep('بدء قراءة profiles...');
+      const result = await withTimeout(
+        supabase
+          .from('profiles')
+          .select('id, email, full_name, role')
+          .eq('id', userId)
+          .single(),
+        10000,
+        'قراءة profiles'
+      );
+
+      const { data, error } = result;
+
+      if (error) {
+        throw new Error(`فشل قراءة profiles: ${error.message}`);
+      }
+
+      if (!data) {
+        throw new Error('تم تسجيل الدخول في Auth لكن لا يوجد صف مطابق في جدول profiles لهذا المستخدم.');
+      }
+
+      currentProfile = data;
+      logStep('تم تحميل البروفايل بنجاح.');
+      return data;
+    }
+
+    function fillDashboard() {
+      document.getElementById('userId').textContent = currentUser?.id || '-';
+      document.getElementById('userEmail').textContent = currentProfile?.email || currentUser?.email || '-';
+      document.getElementById('userName').textContent = currentProfile?.full_name || '-';
+      document.getElementById('userRole').textContent = currentProfile?.role || '-';
+      document.getElementById('userPill').textContent = `${currentProfile?.full_name || currentUser?.email || '-'} • ${currentProfile?.role || '-'}`;
+
+      toggleAdminButton();
+    }
+
+    function goToApp() {
+      authSection.classList.add('hidden');
+      appSection.classList.remove('hidden');
+      fillDashboard();
+    }
+
+    function goToAuth() {
+      authSection.classList.remove('hidden');
+      appSection.classList.add('hidden');
+      adminAddUserBtn.classList.add('hidden');
+    }
+
+    async function login() {
+      clearBox(authMessage);
+      clearBox(appMessage);
+      resetDebug('بدء محاولة تسجيل الدخول...');
+
+      const email = loginEmailInput.value.trim();
+      const password = loginPasswordInput.value.trim();
+
+      if (!email || !password) {
+        showBox(authMessage, 'err', 'أدخل الإيميل وكلمة المرور.');
+        return;
+      }
+
+      try {
+        setLoading(true);
+
+        logStep('تنفيذ signInWithPassword...');
+        const { data, error } = await withTimeout(
+          supabase.auth.signInWithPassword({ email, password }),
+          15000,
+          'تسجيل الدخول'
+        );
+
+        if (error) {
+          throw error;
+        }
+
+        if (!data?.user) {
+          throw new Error('نجح طلب تسجيل الدخول لكن لم يتم إرجاع user.');
+        }
+
+        currentUser = data.user;
+        logStep(`تم تسجيل الدخول في Auth بنجاح. user.id = ${currentUser.id}`);
+
+        await loadProfileStrict(currentUser.id);
+
+        showBox(authMessage, 'ok', 'تم تسجيل الدخول وتحميل البروفايل بنجاح.');
+        goToApp();
+      } catch (err) {
+        currentUser = null;
+        currentProfile = null;
+        goToAuth();
+
+        let msg = err?.message || 'حدث خطأ غير معروف';
+
+        if (msg.includes('Invalid login credentials')) {
+          msg = 'بيانات الدخول غير صحيحة.';
+        } else if (msg.includes('Email not confirmed')) {
+          msg = 'الإيميل غير مؤكد في Supabase.';
+        } else if (msg.includes('Failed to fetch')) {
+          msg = 'فشل الاتصال بـ Supabase. تحقق من الإنترنت أو من المتصفح أو من حظر الشبكة.';
+        }
+
+        logStep(`خطأ: ${msg}`);
+        showBox(authMessage, 'err', escapeHtml(msg));
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    async function testProfiles() {
+      clearBox(authMessage);
+      resetDebug('اختبار الوصول إلى جدول profiles...');
+
+      try {
+        setLoading(true);
+
+        const { data, error } = await withTimeout(
+          supabase.from('profiles').select('id, email, full_name, role').limit(3),
+          10000,
+          'اختبار profiles'
+        );
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        logStep('نجح الوصول إلى جدول profiles.');
+        showBox(
+          authMessage,
+          'ok',
+          `تم الوصول إلى profiles بنجاح.\nعدد السجلات التي رجعت في الاختبار: ${Array.isArray(data) ? data.length : 0}`
+        );
+      } catch (err) {
+        let msg = err?.message || 'فشل اختبار profiles';
+        logStep(`خطأ الاختبار: ${msg}`);
+        showBox(authMessage, 'warn', escapeHtml(`تعذر قراءة profiles: ${msg}`));
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    async function reloadSession() {
+      clearBox(appMessage);
+      resetDebug('إعادة تحميل الجلسة الحالية...');
+
+      try {
+        const { data, error } = await supabase.auth.getUser();
+        if (error) throw error;
+
+        if (!data.user) {
+          throw new Error('لا توجد جلسة حالية.');
+        }
+
+        currentUser = data.user;
+        logStep(`تم جلب الجلسة. user.id = ${currentUser.id}`);
+        await loadProfileStrict(currentUser.id);
+        fillDashboard();
+        showBox(appMessage, 'ok', 'تم تحديث بيانات الجلسة والبروفايل.');
+      } catch (err) {
+        showBox(appMessage, 'err', escapeHtml(err.message || 'تعذر إعادة التحميل'));
+      }
+    }
+
+    async function logout() {
+      clearBox(appMessage);
+      resetDebug('تسجيل الخروج...');
+
+      try {
+        await supabase.auth.signOut();
+        currentUser = null;
+        currentProfile = null;
+        loginPasswordInput.value = '';
+        goToAuth();
+        logStep('تم تسجيل الخروج.');
+      } catch (err) {
+        showBox(appMessage, 'err', escapeHtml(err.message || 'تعذر تسجيل الخروج'));
+      }
+    }
+
+    async function boot() {
+      resetDebug('فحص الجلسة الحالية...');
+      try {
+        const { data, error } = await supabase.auth.getUser();
+        if (error) throw error;
+
+        if (!data.user) {
+          logStep('لا توجد جلسة محفوظة.');
+          goToAuth();
+          return;
+        }
+
+        currentUser = data.user;
+        logStep(`وجدت جلسة محفوظة. user.id = ${currentUser.id}`);
+
+        await loadProfileStrict(currentUser.id);
+        goToApp();
+        showBox(appMessage, 'ok', 'تم الدخول تلقائيًا من الجلسة المحفوظة.');
+      } catch (err) {
+        logStep(`فشل boot: ${err.message || err}`);
+        goToAuth();
+      }
+    }
+
+    loginBtn.addEventListener('click', login);
+    logoutBtn.addEventListener('click', logout);
+    reloadBtn.addEventListener('click', reloadSession);
+    testProfileBtn.addEventListener('click', testProfiles);
+
+    loginPasswordInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') login();
+    });
+
+    boot();
+  </script>
 </body>
 </html>
