@@ -1,0 +1,2135 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>نظام تقييم أصناف البذور</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #018f45;
+      --primary-dark: #01753a;
+      --primary-soft: #eef8f2;
+      --border: #dbe3ea;
+      --ok-bg: #ecfdf5;
+      --ok-text: #065f46;
+      --ok-border: #a7f3d0;
+      --err-bg: #fef2f2;
+      --err-text: #991b1b;
+      --err-border: #fecaca;
+      --warn-bg: #fff7ed;
+      --warn-text: #9a3412;
+      --warn-border: #fdba74;
+      --shadow: 0 10px 28px rgba(0,0,0,0.08);
+      --radius: 18px;
+      --radius-lg: 24px;
+      --modal-z: 40;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: Tahoma, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    body.ltr {
+      direction: ltr;
+      font-family: Arial, Tahoma, sans-serif;
+    }
+    .container {
+      width: min(1380px, calc(100% - 24px));
+      margin: 24px auto 40px;
+    }
+    .header {
+      background: linear-gradient(135deg, #018f45, #01753a);
+      color: #fff;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0 0 10px;
+      font-size: clamp(24px, 3vw, 38px);
+    }
+    .header p {
+      margin: 0;
+      color: rgba(255,255,255,0.95);
+      line-height: 1.9;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+    .auth-wrap {
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .title-row.centered { justify-content: center; text-align: center; }
+    .title-row h2, .title-row h3 { margin: 0; }
+    .hint, .section-hint {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    .form-grid, .grid-2, .grid-3, .grid-4 {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+    .form-grid, .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .field.full { grid-column: 1 / -1; }
+    label {
+      font-size: 14px;
+      font-weight: 700;
+    }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+      outline: none;
+      transition: 0.2s ease;
+    }
+    textarea { min-height: 110px; resize: vertical; line-height: 1.8; }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(1,143,69,0.10);
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    button, .btn-link, .btn-like {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary { background: #eef8f2; color: var(--primary-dark); border: 1px solid #cfe7d6; }
+    .btn-secondary:hover { background: #e4f3e8; }
+    .btn-danger { background: #fff5f5; color: #b91c1c; border: 1px solid #fecaca; }
+    .btn-ghost { background: #f8fafc; color: var(--text); border: 1px solid var(--border); }
+    .btn-link { background: var(--primary); color: #fff; border: 1px solid var(--primary-dark); }
+    .alert {
+      padding: 12px 14px;
+      border-radius: 14px;
+      line-height: 1.8;
+      font-size: 14px;
+      border: 1px solid transparent;
+      margin-top: 14px;
+      white-space: pre-wrap;
+    }
+    .alert.ok { background: var(--ok-bg); color: var(--ok-text); border-color: var(--ok-border); }
+    .alert.err { background: var(--err-bg); color: var(--err-text); border-color: var(--err-border); }
+    .alert.warn { background: var(--warn-bg); color: var(--warn-text); border-color: var(--warn-border); }
+    .hidden { display: none !important; }
+    .dashboard { display: grid; gap: 16px; }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+    }
+    .welcome-box {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+    }
+    .welcome-box h2 { margin: 0 0 10px; font-size: clamp(24px, 3vw, 38px); }
+    .welcome-box p { margin: 0; color: var(--muted); line-height: 1.8; }
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .avatar-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #eef8f2;
+      color: var(--primary-dark);
+      border: 1px solid #cfe7d6;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .avatar {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      border-radius: 999px;
+      object-fit: cover;
+      background: #d1d5db;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 1px rgba(1,143,69,0.12);
+    }
+    .section-title { margin: 0 0 8px; font-size: 22px; font-weight: 800; }
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .quick-card {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(135deg, #ffffff, #f8fbf9);
+      cursor: pointer;
+      transition: 0.2s ease;
+      text-align: start;
+    }
+    .quick-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .quick-card strong { display: block; margin-bottom: 6px; font-size: 18px; }
+    .quick-card span { color: var(--muted); line-height: 1.7; font-size: 14px; }
+
+    .info-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .info-box {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      background: #fff;
+    }
+    .info-box span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .info-box strong { font-size: 18px; word-break: break-word; }
+
+    .tab-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .tab-btn {
+      background: #f8fafc;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary-dark);
+    }
+
+    .section-panel { display: none; }
+    .section-panel.active { display: block; }
+
+    .search-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .search-box { flex: 1; min-width: 220px; }
+    .stack { display: grid; gap: 14px; }
+
+    .item-card, .result-card, .evaluation-card, .stock-card {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: #fff;
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+    .item-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .item-head h3 { margin: 0; font-size: 22px; }
+    .meta-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 13px;
+    }
+    .badge {
+      background: #eef8f2;
+      color: var(--primary-dark);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .badge.warn { background: #fff7ed; color: #9a3412; }
+    .badge.muted { background: #f1f5f9; color: #475569; }
+    .badge.danger { background: #fef2f2; color: #b91c1c; }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .detail-box {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fbfdff;
+    }
+    .detail-box span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 4px; }
+    .detail-box strong { line-height: 1.7; }
+
+    .visit-list, .member-list, .timeline-list, .letter-list { display: grid; gap: 12px; margin-top: 14px; }
+    .visit-card, .timeline-card, .member-card, .letter-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      background: #fbfdff;
+    }
+    .notes { line-height: 1.9; white-space: pre-wrap; background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 12px; }
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .media-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .media-card img, .media-card video, .file-card iframe {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+      background: #000;
+    }
+    .media-actions, .inline-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 28px;
+      border: 1px dashed var(--border);
+      border-radius: 18px;
+      background: #fafcfe;
+    }
+
+    .notification-box {
+      border: 1px solid #fde68a;
+      background: #fffbeb;
+      color: #92400e;
+      border-radius: 16px;
+      padding: 14px;
+      line-height: 1.8;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.52);
+      z-index: var(--modal-z);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      width: min(960px, 100%);
+      max-height: calc(100vh - 32px);
+      overflow: auto;
+      background: #fff;
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+    }
+    .modal.sm { width: min(620px, 100%); }
+
+    .footer-logos {
+      width: 100%;
+      text-align: center;
+      margin-top: 36px;
+      padding: 8px 0 0;
+    }
+    .footer-logos img {
+      max-width: min(92%, 720px);
+      width: 100%;
+      height: auto;
+      display: inline-block;
+      object-fit: contain;
+    }
+
+    @media (max-width: 1100px) {
+      .quick-grid, .info-strip, .detail-grid, .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-3, .form-grid, .grid-2 { grid-template-columns: 1fr; }
+      .topbar { grid-template-columns: 1fr; }
+      .toolbar { justify-content: flex-start; }
+    }
+    @media (max-width: 700px) {
+      .container { width: min(100% - 16px, 1380px); }
+      .header, .card, .modal, .item-card, .result-card, .stock-card { padding: 14px; }
+      .quick-grid, .info-strip, .detail-grid { grid-template-columns: 1fr; }
+      .toolbar, .actions, .search-row, .tab-bar { justify-content: center; }
+      .item-head { flex-direction: column; }
+      .avatar-pill { width: 100%; justify-content: center; }
+      .media-card img, .media-card video { height: 150px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 id="mainHeaderTitle">نظام تقييم أصناف بذور التجارب</h1>
+      <p id="mainHeaderText">نظام تسجيل دخول مخصص للموظفين<br><span id="loginHelpText">في حال تعذر عليك تسجيل الدخول تواصل مع k.shabib@altakamul.com.sa</span></p>
+    </div>
+
+    <div id="authSection" class="card auth-wrap">
+      <div class="title-row centered">
+        <h2 data-i18n="login">تسجيل الدخول</h2>
+      </div>
+      <div class="form-grid">
+        <div class="field full">
+          <label for="loginEmail" data-i18n="email">الإيميل</label>
+          <input id="loginEmail" type="email" autocomplete="email" placeholder="example@company.com" />
+        </div>
+        <div class="field full">
+          <label for="loginPassword" data-i18n="password">كلمة المرور</label>
+          <input id="loginPassword" type="password" autocomplete="current-password" placeholder="••••••••" />
+        </div>
+      </div>
+      <div class="actions">
+        <button id="loginBtn" class="btn-primary" type="button" data-i18n="login">تسجيل الدخول</button>
+      </div>
+      <div id="authMessage"></div>
+      <div class="actions" style="justify-content:center; margin-top:14px;">
+        <a class="btn-secondary" href="forgot-password.html" data-i18n="forgot_password">نسيت كلمة المرور؟</a>
+      </div>
+    </div>
+
+    <div id="appSection" class="card dashboard hidden">
+      <div class="topbar">
+        <div class="welcome-box">
+          <h2 id="welcomeTitle">مرحباً بك</h2>
+          <p id="welcomeText">تم تسجيل الدخول بنجاح.</p>
+        </div>
+        <div class="toolbar">
+          <div id="userPill" class="avatar-pill">
+            <img id="userAvatar" class="avatar" alt="avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='100%25' height='100%25' fill='%23d1d5db'/%3E%3Ctext x='50%25' y='54%25' font-size='36' text-anchor='middle' fill='%236b7280' font-family='Arial'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E" />
+            <span id="userPillText">-</span>
+          </div>
+          <button id="profileBtn" class="btn-secondary" type="button">إدارة الملف الشخصي</button>
+          <a id="memberAdminBtn" class="btn-link hidden" href="admin-users.html">إدارة الأعضاء</a>
+          <button id="reloadBtn" class="btn-secondary" type="button">إعادة تحميل</button>
+          <button id="logoutBtn" class="btn-danger" type="button">تسجيل الخروج</button>
+        </div>
+      </div>
+
+      <div class="info-strip">
+        <div class="info-box">
+          <span>الاسم</span>
+          <strong id="userName">-</strong>
+        </div>
+        <div class="info-box">
+          <span>الإيميل</span>
+          <strong id="userEmail">-</strong>
+        </div>
+        <div class="info-box">
+          <span>الدور</span>
+          <strong id="userRole">-</strong>
+        </div>
+        <div class="info-box">
+          <span>اللغة</span>
+          <strong id="userLangLabel">العربية</strong>
+        </div>
+      </div>
+
+      <div id="appMessage"></div>
+
+      <div id="memberNotifications" class="notification-box hidden"></div>
+
+      <div id="quickActionsSection" class="card hidden">
+        <h3 class="section-title">لوحة التحكم</h3>
+        <div class="quick-grid" id="quickActionsGrid"></div>
+      </div>
+
+      <div class="card">
+        <div class="tab-bar" id="tabBar"></div>
+
+        <section id="panel-results" class="section-panel active">
+          <div class="title-row">
+            <div>
+              <h3 class="section-title">عرض النتائج</h3>
+              <div class="section-hint" id="resultsHint">يعرض الأصناف المضافة مع الصور والزيارات والتقييمات حسب صلاحيتك.</div>
+            </div>
+          </div>
+          <div class="search-row">
+            <button class="btn-primary" id="refreshResultsBtn" type="button">تحديث العرض</button>
+            <input id="searchInput" class="search-box" type="text" placeholder="ابحث باسم الصنف أو رقمه" />
+          </div>
+          <div id="resultsList" class="stack"></div>
+        </section>
+
+        <section id="panel-varieties" class="section-panel hidden">
+          <div class="title-row">
+            <div>
+              <h3 class="section-title">إضافة صنف جديد</h3>
+              <div class="section-hint">أضف بيانات الصنف الأساسية، ثم أضف أول زيارة له. بعد الحفظ ستتمكن من فتح صفحة الصنف وإضافة زيارات جديدة لاحقًا.</div>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="field">
+              <label for="varietyCode">رقم الصنف</label>
+              <input id="varietyCode" type="text" placeholder="ON-001" />
+            </div>
+            <div class="field">
+              <label for="varietyName">اسم الصنف</label>
+              <input id="varietyName" type="text" placeholder="اكتب اسم الصنف" />
+            </div>
+            <div class="field">
+              <label for="cropType">نوع الصنف</label>
+              <input id="cropType" type="text" placeholder="مثال: خيار / طماطم / بصل" />
+            </div>
+            <div class="field">
+              <label for="producerCompany">الشركة المنتجة</label>
+              <input id="producerCompany" type="text" placeholder="اسم الشركة المنتجة" />
+            </div>
+            <div class="field">
+              <label for="growingType">نوع الزراعة</label>
+              <select id="growingType">
+                <option value="">اختر</option>
+                <option value="protected">بيت محمي</option>
+                <option value="open_field">خارجي</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="locationName">مكان الزراعة</label>
+              <input id="locationName" type="text" placeholder="مكان الزراعة" />
+            </div>
+            <div class="field full">
+              <label>بداية الزراعة</label>
+              <div class="actions" style="margin-top:0;">
+                <label><input type="radio" name="startMethod" value="nursery" /> تشتيل</label>
+                <label><input type="radio" name="startMethod" value="direct" /> زراعة مباشرة في الأرض</label>
+              </div>
+            </div>
+            <div class="field hidden" id="nurseryDateWrap">
+              <label for="nurseryDate">تاريخ التشتيل</label>
+              <input id="nurseryDate" type="date" />
+            </div>
+            <div class="field hidden" id="transplantDateWrap">
+              <label for="transplantDate">تاريخ الزراعة في الأرض</label>
+              <input id="transplantDate" type="date" />
+            </div>
+            <div class="field hidden" id="directDateWrap">
+              <label for="directPlantDate">تاريخ الزراعة في الأرض</label>
+              <input id="directPlantDate" type="date" />
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:18px;">
+            <h3 class="section-title" style="font-size:18px;">الزيارة الأولى</h3>
+            <div class="form-grid" style="margin-top:0;">
+              <div class="field">
+                <label for="firstVisitDate">تاريخ الزيارة</label>
+                <input id="firstVisitDate" type="date" />
+              </div>
+              <div class="field full">
+                <label for="firstVisitNotes">ملاحظات الزيارة</label>
+                <textarea id="firstVisitNotes" placeholder="اكتب ملاحظاتك على هذه الزيارة فقط"></textarea>
+              </div>
+              <div class="field full">
+                <label for="firstVisitMedia">صور / فيديوهات الزيارة</label>
+                <input id="firstVisitMedia" type="file" accept="image/*,video/*" multiple />
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="saveVarietyBtn" class="btn-primary" type="button">حفظ الصنف</button>
+            <button id="resetVarietyBtn" class="btn-secondary" type="button">تفريغ الحقول</button>
+          </div>
+          <div id="varietyFormMessage"></div>
+
+          <div class="card" style="margin-top:18px;">
+            <div class="title-row">
+              <div>
+                <h3 class="section-title" style="font-size:18px;">الأصناف المحفوظة</h3>
+                <div class="section-hint">يمكنك فتح صفحة الصنف لإضافة زيارة ثانية أو تعديل البيانات الأساسية.</div>
+              </div>
+            </div>
+            <div id="savedVarietiesList" class="stack"></div>
+          </div>
+        </section>
+
+        <section id="panel-stock" class="section-panel hidden">
+          <div class="title-row">
+            <div>
+              <h3 class="section-title">إدارة مخزون البذور</h3>
+              <div class="section-hint">إضافة صنف للمخزون، تسجيل كمية واردة، توزيع البذور للفروع، ورفع النشرة الفنية وخطابات التسليم.</div>
+            </div>
+          </div>
+
+          <div class="tab-bar" id="stockSubTabs">
+            <button class="tab-btn active" data-stock-tab="stock-master">المخزون</button>
+            <button class="tab-btn" data-stock-tab="stock-in">كمية واردة</button>
+            <button class="tab-btn" data-stock-tab="distribution">توزيع البذور</button>
+            <button class="tab-btn" data-stock-tab="letters">خطابات التسليم</button>
+          </div>
+
+          <div id="stock-master" class="stock-sub-panel">
+            <div class="form-grid">
+              <div class="field">
+                <label for="stockVarietyCode">رقم الصنف</label>
+                <input id="stockVarietyCode" type="text" placeholder="ON-001" />
+              </div>
+              <div class="field">
+                <label for="stockVarietyName">اسم الصنف</label>
+                <input id="stockVarietyName" type="text" placeholder="اسم الصنف" />
+              </div>
+              <div class="field">
+                <label for="stockCropType">نوع الصنف</label>
+                <input id="stockCropType" type="text" placeholder="نوع الصنف" />
+              </div>
+              <div class="field">
+                <label for="stockTechnicalSheet">النشرة الفنية</label>
+                <input id="stockTechnicalSheet" type="file" accept="application/pdf,image/*" />
+              </div>
+            </div>
+            <div class="actions">
+              <button id="saveStockMasterBtn" class="btn-primary" type="button">حفظ الصنف في المخزون</button>
+            </div>
+            <div id="stockMasterMessage"></div>
+            <div id="stockMasterList" class="stack" style="margin-top:16px;"></div>
+          </div>
+
+          <div id="stock-in" class="stock-sub-panel hidden">
+            <div class="form-grid">
+              <div class="field">
+                <label for="stockInSeedId">الصنف</label>
+                <select id="stockInSeedId"></select>
+              </div>
+              <div class="field">
+                <label for="stockInQuantity">الكمية الواردة</label>
+                <input id="stockInQuantity" type="number" min="0" step="0.01" placeholder="0" />
+              </div>
+              <div class="field">
+                <label for="stockInDate">تاريخ الاستلام</label>
+                <input id="stockInDate" type="date" />
+              </div>
+              <div class="field">
+                <label for="stockInNotes">معلومات الكمية الواردة</label>
+                <input id="stockInNotes" type="text" placeholder="أي معلومات إضافية" />
+              </div>
+            </div>
+            <div class="actions">
+              <button id="saveStockInBtn" class="btn-primary" type="button">حفظ الكمية الواردة</button>
+            </div>
+            <div id="stockInMessage"></div>
+            <div id="stockInList" class="stack" style="margin-top:16px;"></div>
+          </div>
+
+          <div id="distribution" class="stock-sub-panel hidden">
+            <div class="form-grid">
+              <div class="field">
+                <label for="distributionSeedId">الصنف</label>
+                <select id="distributionSeedId"></select>
+              </div>
+              <div class="field">
+                <label for="distributionQuantity">الكمية الموزعة</label>
+                <input id="distributionQuantity" type="number" min="0" step="0.01" placeholder="0" />
+              </div>
+              <div class="field">
+                <label for="distributionBranch">الفرع / الجهة</label>
+                <input id="distributionBranch" type="text" placeholder="اسم الفرع" />
+              </div>
+              <div class="field">
+                <label for="distributionReceiver">عند مين</label>
+                <input id="distributionReceiver" type="text" placeholder="اسم المستلم" />
+              </div>
+              <div class="field">
+                <label for="distributionDate">تاريخ الإرسال</label>
+                <input id="distributionDate" type="date" />
+              </div>
+              <div class="field">
+                <label for="distributionLetter">خطاب التسليم</label>
+                <input id="distributionLetter" type="file" accept="application/pdf,image/*" />
+              </div>
+            </div>
+            <div class="actions">
+              <button id="saveDistributionBtn" class="btn-primary" type="button">حفظ التوزيع</button>
+            </div>
+            <div id="distributionMessage"></div>
+            <div id="distributionList" class="stack" style="margin-top:16px;"></div>
+          </div>
+
+          <div id="letters" class="stock-sub-panel hidden">
+            <div id="deliveryLettersList" class="letter-list"></div>
+          </div>
+        </section>
+
+        <section id="panel-evaluations" class="section-panel hidden">
+          <div class="title-row">
+            <div>
+              <h3 class="section-title">متابعة التقييمات</h3>
+              <div class="section-hint">يعرض من قام بالتقييم ومن لم يقم بالتقييم. التعديل أو فتح التقييم للتعديل محصور بالمدير الكامل فقط.</div>
+            </div>
+          </div>
+          <div id="evaluationsOverview" class="stack"></div>
+        </section>
+      </div>
+    </div>
+
+    <div class="footer-logos">
+      <img src="https://pub-cd0f58e55c564e2eb5b6faa013d69fd6.r2.dev/sigen.jpg" alt="الشعارات" />
+    </div>
+  </div>
+
+  <div id="profileModal" class="modal-overlay">
+    <div class="modal sm">
+      <div class="title-row">
+        <h3 id="profileModalTitle">إدارة الملف الشخصي</h3>
+        <button class="btn-danger" data-close-modal="profileModal" type="button">إغلاق</button>
+      </div>
+      <div class="form-grid" id="profileFieldsWrap">
+        <div class="field full">
+          <label for="profileAvatarFile">الصورة الشخصية</label>
+          <input id="profileAvatarFile" type="file" accept="image/*" />
+        </div>
+        <div class="field hidden" id="phoneWrap">
+          <label for="profilePhone">رقم الجوال</label>
+          <input id="profilePhone" type="text" placeholder="05xxxxxxxx" />
+        </div>
+        <div class="field hidden" id="languageWrap">
+          <label for="profileLanguage">اللغة</label>
+          <select id="profileLanguage">
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label for="currentPassword">كلمة المرور الحالية</label>
+          <input id="currentPassword" type="password" placeholder="••••••••" />
+        </div>
+        <div class="field">
+          <label for="newPassword">كلمة المرور الجديدة</label>
+          <input id="newPassword" type="password" placeholder="••••••••" />
+        </div>
+        <div class="field">
+          <label for="confirmNewPassword">تأكيد كلمة المرور الجديدة</label>
+          <input id="confirmNewPassword" type="password" placeholder="••••••••" />
+        </div>
+      </div>
+      <div class="actions">
+        <button id="saveProfileBtn" class="btn-primary" type="button">حفظ التغييرات</button>
+      </div>
+      <div id="profileMessage"></div>
+    </div>
+  </div>
+
+  <div id="varietyModal" class="modal-overlay">
+    <div class="modal">
+      <div class="title-row">
+        <h3 id="varietyModalTitle">تفاصيل الصنف</h3>
+        <button class="btn-danger" data-close-modal="varietyModal" type="button">إغلاق</button>
+      </div>
+      <div id="varietyModalBody"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+    const SUPABASE_URL = 'https://epqgayhsmnqbfdliqhil.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_0TKEiHetpDjyrRdjFdKu6Q_cAwFkWC7';
+    const ADMIN_PAGE_URL = 'https://takamul-agri.github.io/nawarah-report/admin-users.html';
+    const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='100%25' height='100%25' fill='%23d1d5db'/%3E%3Ctext x='50%25' y='54%25' font-size='36' text-anchor='middle' fill='%236b7280' font-family='Arial'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
+    const MEDIA_BUCKET = 'variety-media';
+    const AVATAR_BUCKET = 'profile-avatars';
+    const DOC_BUCKET = 'seed-documents';
+    const SESSION_TIMEOUT_MINUTES = 480;
+    const SESSION_TIMEOUT_MS = SESSION_TIMEOUT_MINUTES * 60 * 1000;
+    const LAST_ACTIVITY_KEY = 'nawarah_last_activity_at';
+    const authStorage = (() => {
+      try {
+        const k = '__nawarah_auth_test__';
+        window.localStorage.setItem(k, '1');
+        window.localStorage.removeItem(k);
+        return window.localStorage;
+      } catch {
+        return window.sessionStorage;
+      }
+    })();
+
+    const ROLE = {
+      SUPER_ADMIN: 'super_admin',
+      SECOND_MANAGER: 'second_manager',
+      MEMBER: 'member'
+    };
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storage: authStorage
+      }
+    });
+
+    const dict = {
+      ar: {
+        login: 'تسجيل الدخول', email: 'الإيميل', password: 'كلمة المرور', forgot_password: 'نسيت كلمة المرور؟',
+        role: 'الدور', language: 'اللغة', logout: 'تسجيل الخروج'
+      },
+      en: {
+        login: 'Login', email: 'Email', password: 'Password', forgot_password: 'Forgot password?',
+        role: 'Role', language: 'Language', logout: 'Logout'
+      }
+    };
+
+    let currentUser = null;
+    let currentProfile = null;
+    let inactivityInterval = null;
+    let isLoggingOut = false;
+    let varieties = [];
+    let evaluations = [];
+    let inventorySeeds = [];
+    let stockIns = [];
+    let distributions = [];
+    let members = [];
+    let currentLanguage = 'ar';
+
+    const el = {
+      body: document.body,
+      authSection: document.getElementById('authSection'),
+      appSection: document.getElementById('appSection'),
+      authMessage: document.getElementById('authMessage'),
+      appMessage: document.getElementById('appMessage'),
+      loginEmail: document.getElementById('loginEmail'),
+      loginPassword: document.getElementById('loginPassword'),
+      loginBtn: document.getElementById('loginBtn'),
+      reloadBtn: document.getElementById('reloadBtn'),
+      logoutBtn: document.getElementById('logoutBtn'),
+      mainHeaderTitle: document.getElementById('mainHeaderTitle'),
+      mainHeaderText: document.getElementById('mainHeaderText'),
+      welcomeTitle: document.getElementById('welcomeTitle'),
+      welcomeText: document.getElementById('welcomeText'),
+      userPillText: document.getElementById('userPillText'),
+      userAvatar: document.getElementById('userAvatar'),
+      userName: document.getElementById('userName'),
+      userEmail: document.getElementById('userEmail'),
+      userRole: document.getElementById('userRole'),
+      userLangLabel: document.getElementById('userLangLabel'),
+      profileBtn: document.getElementById('profileBtn'),
+      memberAdminBtn: document.getElementById('memberAdminBtn'),
+      quickActionsSection: document.getElementById('quickActionsSection'),
+      quickActionsGrid: document.getElementById('quickActionsGrid'),
+      tabBar: document.getElementById('tabBar'),
+      resultsList: document.getElementById('resultsList'),
+      refreshResultsBtn: document.getElementById('refreshResultsBtn'),
+      searchInput: document.getElementById('searchInput'),
+      memberNotifications: document.getElementById('memberNotifications'),
+      varietyCode: document.getElementById('varietyCode'),
+      varietyName: document.getElementById('varietyName'),
+      cropType: document.getElementById('cropType'),
+      producerCompany: document.getElementById('producerCompany'),
+      growingType: document.getElementById('growingType'),
+      locationName: document.getElementById('locationName'),
+      nurseryDateWrap: document.getElementById('nurseryDateWrap'),
+      transplantDateWrap: document.getElementById('transplantDateWrap'),
+      directDateWrap: document.getElementById('directDateWrap'),
+      nurseryDate: document.getElementById('nurseryDate'),
+      transplantDate: document.getElementById('transplantDate'),
+      directPlantDate: document.getElementById('directPlantDate'),
+      firstVisitDate: document.getElementById('firstVisitDate'),
+      firstVisitNotes: document.getElementById('firstVisitNotes'),
+      firstVisitMedia: document.getElementById('firstVisitMedia'),
+      saveVarietyBtn: document.getElementById('saveVarietyBtn'),
+      resetVarietyBtn: document.getElementById('resetVarietyBtn'),
+      varietyFormMessage: document.getElementById('varietyFormMessage'),
+      savedVarietiesList: document.getElementById('savedVarietiesList'),
+      evaluationsOverview: document.getElementById('evaluationsOverview'),
+      stockVarietyCode: document.getElementById('stockVarietyCode'),
+      stockVarietyName: document.getElementById('stockVarietyName'),
+      stockCropType: document.getElementById('stockCropType'),
+      stockTechnicalSheet: document.getElementById('stockTechnicalSheet'),
+      saveStockMasterBtn: document.getElementById('saveStockMasterBtn'),
+      stockMasterMessage: document.getElementById('stockMasterMessage'),
+      stockMasterList: document.getElementById('stockMasterList'),
+      stockInSeedId: document.getElementById('stockInSeedId'),
+      stockInQuantity: document.getElementById('stockInQuantity'),
+      stockInDate: document.getElementById('stockInDate'),
+      stockInNotes: document.getElementById('stockInNotes'),
+      saveStockInBtn: document.getElementById('saveStockInBtn'),
+      stockInMessage: document.getElementById('stockInMessage'),
+      stockInList: document.getElementById('stockInList'),
+      distributionSeedId: document.getElementById('distributionSeedId'),
+      distributionQuantity: document.getElementById('distributionQuantity'),
+      distributionBranch: document.getElementById('distributionBranch'),
+      distributionReceiver: document.getElementById('distributionReceiver'),
+      distributionDate: document.getElementById('distributionDate'),
+      distributionLetter: document.getElementById('distributionLetter'),
+      saveDistributionBtn: document.getElementById('saveDistributionBtn'),
+      distributionMessage: document.getElementById('distributionMessage'),
+      distributionList: document.getElementById('distributionList'),
+      deliveryLettersList: document.getElementById('deliveryLettersList'),
+      profileModal: document.getElementById('profileModal'),
+      profileModalTitle: document.getElementById('profileModalTitle'),
+      profileAvatarFile: document.getElementById('profileAvatarFile'),
+      phoneWrap: document.getElementById('phoneWrap'),
+      profilePhone: document.getElementById('profilePhone'),
+      languageWrap: document.getElementById('languageWrap'),
+      profileLanguage: document.getElementById('profileLanguage'),
+      currentPassword: document.getElementById('currentPassword'),
+      newPassword: document.getElementById('newPassword'),
+      confirmNewPassword: document.getElementById('confirmNewPassword'),
+      saveProfileBtn: document.getElementById('saveProfileBtn'),
+      profileMessage: document.getElementById('profileMessage'),
+      varietyModal: document.getElementById('varietyModal'),
+      varietyModalTitle: document.getElementById('varietyModalTitle'),
+      varietyModalBody: document.getElementById('varietyModalBody')
+    };
+
+    function showBox(target, type, message) {
+      target.innerHTML = `<div class="alert ${type}">${message}</div>`;
+    }
+    function clearBox(target) { target.innerHTML = ''; }
+    function escapeHtml(text) {
+      return String(text ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+    function formatDate(value) {
+      if (!value) return '-';
+      return value;
+    }
+    function roleLabel(role) {
+      if (role === ROLE.SUPER_ADMIN) return currentLanguage === 'ar' ? 'مدير كامل الصلاحيات' : 'Super Admin';
+      if (role === ROLE.SECOND_MANAGER) return currentLanguage === 'ar' ? 'مدير مرتبة ثانية' : 'Second Manager';
+      return currentLanguage === 'ar' ? 'عضو' : 'Member';
+    }
+    function canManageAll() { return currentProfile?.role === ROLE.SUPER_ADMIN; }
+    function canViewManagement() { return [ROLE.SUPER_ADMIN, ROLE.SECOND_MANAGER].includes(currentProfile?.role); }
+    function canMemberEvaluate() { return currentProfile?.role === ROLE.MEMBER; }
+    function setLastActivityNow() { authStorage.setItem(LAST_ACTIVITY_KEY, String(Date.now())); }
+    function getLastActivityAt() {
+      const raw = authStorage.getItem(LAST_ACTIVITY_KEY);
+      const value = Number(raw);
+      return Number.isFinite(value) && value > 0 ? value : 0;
+    }
+    function clearLastActivity() { authStorage.removeItem(LAST_ACTIVITY_KEY); }
+    function isSessionExpired() {
+      const lastActivityAt = getLastActivityAt();
+      if (!lastActivityAt) return false;
+      return Date.now() - lastActivityAt > SESSION_TIMEOUT_MS;
+    }
+    function stopInactivityWatcher() {
+      if (inactivityInterval) { clearInterval(inactivityInterval); inactivityInterval = null; }
+    }
+    function startInactivityWatcher() {
+      stopInactivityWatcher();
+      const handler = () => { if (currentUser) setLastActivityNow(); };
+      ['click', 'keydown', 'mousemove', 'scroll', 'touchstart'].forEach((eventName) => {
+        window.removeEventListener(eventName, handler, true);
+        window.addEventListener(eventName, handler, true);
+      });
+      inactivityInterval = setInterval(async () => {
+        if (!currentUser || isLoggingOut) return;
+        if (isSessionExpired()) await forceLogoutDueToTimeout();
+      }, 15000);
+    }
+    function setLoading(loading) {
+      el.loginBtn.disabled = loading;
+      el.loginBtn.textContent = loading ? (currentLanguage === 'ar' ? 'جاري تسجيل الدخول...' : 'Signing in...') : (currentLanguage === 'ar' ? 'تسجيل الدخول' : 'Login');
+    }
+    function openModal(id) { document.getElementById(id).classList.add('show'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    async function withTimeout(promise, ms, label) {
+      let timer;
+      const timeoutPromise = new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`${label} timeout`)), ms);
+      });
+      try { return await Promise.race([promise, timeoutPromise]); }
+      finally { clearTimeout(timer); }
+    }
+
+    async function getSessionUser() {
+      const sessionResult = await withTimeout(supabase.auth.getSession(), 45000, 'getSession');
+      if (sessionResult?.error) throw sessionResult.error;
+      const sessionUser = sessionResult?.data?.session?.user || null;
+      if (sessionUser) return sessionUser;
+      const userResult = await withTimeout(supabase.auth.getUser(), 45000, 'getUser');
+      if (userResult?.error) throw userResult.error;
+      return userResult?.data?.user || null;
+    }
+
+    async function uploadFile(bucket, path, file) {
+      const { error } = await supabase.storage.from(bucket).upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+      return data.publicUrl;
+    }
+
+    async function login() {
+      clearBox(el.authMessage);
+      const email = el.loginEmail.value.trim();
+      const password = el.loginPassword.value.trim();
+      if (!email || !password) {
+        showBox(el.authMessage, 'err', currentLanguage === 'ar' ? 'أدخل الإيميل وكلمة المرور.' : 'Enter email and password.');
+        return;
+      }
+      try {
+        setLoading(true);
+        const { data, error } = await withTimeout(supabase.auth.signInWithPassword({ email, password }), 45000, 'signIn');
+        if (error) throw error;
+        currentUser = data.user;
+        await loadProfileStrict(currentUser.id);
+        setLastActivityNow();
+        startInactivityWatcher();
+        goToApp();
+      } catch (err) {
+        currentUser = null;
+        currentProfile = null;
+        clearLastActivity();
+        let msg = err?.message || 'Unknown error';
+        if (msg.includes('Invalid login credentials')) msg = currentLanguage === 'ar' ? 'بيانات الدخول غير صحيحة.' : 'Invalid credentials.';
+        if (msg.includes('Email not confirmed')) msg = currentLanguage === 'ar' ? 'الإيميل غير مؤكد.' : 'Email is not confirmed.';
+        showBox(el.authMessage, 'err', escapeHtml(msg));
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    async function loadProfileStrict(userId) {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, email, full_name, role, phone, language, avatar_url, is_active')
+        .eq('id', userId)
+        .single();
+      if (error) throw error;
+      currentProfile = data;
+      currentLanguage = currentProfile?.language || 'ar';
+      if (currentProfile && currentProfile.is_active === false) {
+        throw new Error(currentLanguage === 'ar' ? 'تم تعطيل هذا المستخدم من قبل المدير.' : 'This user has been disabled by admin.');
+      }
+      return data;
+    }
+
+    async function forceLogoutDueToTimeout() {
+      if (isLoggingOut) return;
+      isLoggingOut = true;
+      try { await supabase.auth.signOut(); } catch {}
+      currentUser = null;
+      currentProfile = null;
+      clearLastActivity();
+      goToAuth();
+      stopInactivityWatcher();
+      showBox(el.authMessage, 'warn', currentLanguage === 'ar' ? 'انتهت الجلسة بسبب عدم النشاط لمدة 30 دقيقة.' : 'Session expired after 30 minutes of inactivity.');
+      isLoggingOut = false;
+    }
+
+    async function logout() {
+      try {
+        isLoggingOut = true;
+        await supabase.auth.signOut();
+      } catch {}
+      currentUser = null;
+      currentProfile = null;
+      clearLastActivity();
+      stopInactivityWatcher();
+      goToAuth();
+      isLoggingOut = false;
+    }
+
+    function goToAuth() {
+      el.authSection.classList.remove('hidden');
+      el.appSection.classList.add('hidden');
+      el.mainHeaderTitle.textContent = currentLanguage === 'ar' ? 'نظام تقييم أصناف بذور التجارب' : 'Seed Variety Evaluation System';
+      el.mainHeaderText.innerHTML = currentLanguage === 'ar'
+        ? 'نظام تسجيل دخول مخصص للموظفين<br><span id="loginHelpText">في حال تعذر عليك تسجيل الدخول تواصل مع k.shabib@altakamul.com.sa</span>'
+        : 'Secure login for team members<br><span id="loginHelpText">If login fails, contact k.shabib@altakamul.com.sa</span>';
+      applyLanguage(currentLanguage);
+    }
+
+    async function reloadSession() {
+      clearBox(el.appMessage);
+      try {
+        if (isSessionExpired()) { await forceLogoutDueToTimeout(); return; }
+        const user = await getSessionUser();
+        if (!user) {
+          showBox(el.appMessage, 'warn', currentLanguage === 'ar' ? 'لا توجد جلسة نشطة. سجّل الدخول مرة أخرى.' : 'No active session. Please sign in again.');
+          return;
+        }
+        currentUser = user;
+        await loadProfileStrict(currentUser.id);
+        setLastActivityNow();
+        startInactivityWatcher();
+        await hydrateData();
+        renderAll();
+        showBox(el.appMessage, 'ok', currentLanguage === 'ar' ? 'تم تحديث البيانات.' : 'Data refreshed.');
+      } catch (err) {
+        console.error('reloadSession failed', err);
+        showBox(el.appMessage, 'err', escapeHtml(err.message || 'Reload failed'));
+      }
+    }
+
+    async function boot() {
+      try {
+        if (isSessionExpired()) {
+          await supabase.auth.signOut();
+          clearLastActivity();
+          goToAuth();
+          return;
+        }
+        let user = await getSessionUser();
+        if (!user) {
+          await new Promise((resolve) => setTimeout(resolve, 800));
+          user = await getSessionUser();
+        }
+        if (!user) { goToAuth(); return; }
+        currentUser = user;
+        await loadProfileStrict(currentUser.id);
+        setLastActivityNow();
+        startInactivityWatcher();
+        await hydrateData();
+        goToApp();
+      } catch (err) {
+        console.error('boot failed', err);
+        goToAuth();
+      }
+    }
+
+    async function hydrateData() {
+      const varietySource = currentProfile?.role === ROLE.SUPER_ADMIN ? 'varieties' : 'varieties_public';
+
+      const v = await supabase.from(varietySource).select('*').order('created_at', { ascending: false });
+      if (v.error) throw v.error;
+
+      const vis = await supabase.from('variety_visits').select('*').order('visit_date', { ascending: false });
+      const media = await supabase.from('variety_visit_media').select('*').order('created_at', { ascending: false });
+      const eva = await supabase.from('variety_evaluations').select('*').order('created_at', { ascending: false });
+
+      let inv = { data: [], error: null };
+      let mov = { data: [], error: null };
+      let letters = { data: [], error: null };
+      let people = { data: [], error: null };
+
+      if (canViewManagement()) {
+        [inv, mov, letters, people] = await Promise.all([
+          supabase.from('seed_inventory').select('*').order('created_at', { ascending: false }),
+          supabase.from('stock_movements').select('*').order('movement_date', { ascending: false }),
+          supabase.from('delivery_letters').select('*').order('created_at', { ascending: false }),
+          supabase.from('profiles').select('id, full_name, email, role').order('full_name', { ascending: true })
+        ]);
+      } else {
+        people = await supabase.from('profiles').select('id, full_name, email, role').order('full_name', { ascending: true });
+      }
+
+      if (vis.error) console.warn('variety_visits load warning', vis.error);
+      if (media.error) console.warn('variety_visit_media load warning', media.error);
+      if (eva.error) console.warn('variety_evaluations load warning', eva.error);
+      if (inv.error) console.warn('seed_inventory load warning', inv.error);
+      if (mov.error) console.warn('stock_movements load warning', mov.error);
+      if (letters.error) console.warn('delivery_letters load warning', letters.error);
+      if (people.error) console.warn('profiles load warning', people.error);
+
+      const mediaByVisit = ((media.data) || []).reduce((acc, item) => {
+        acc[item.visit_id] ||= [];
+        acc[item.visit_id].push(item);
+        return acc;
+      }, {});
+      const visitsByVariety = ((vis.data) || []).reduce((acc, visit) => {
+        acc[visit.variety_id] ||= [];
+        acc[visit.variety_id].push({ ...visit, media: mediaByVisit[visit.id] || [] });
+        return acc;
+      }, {});
+      varieties = (v.data || []).map((item) => ({ ...item, visits: visitsByVariety[item.id] || [] }));
+      evaluations = eva.data || [];
+      inventorySeeds = inv.data || [];
+      stockIns = (mov.data || []).filter((x) => x.movement_type === 'in');
+      distributions = (mov.data || []).filter((x) => x.movement_type === 'out');
+      members = (people.data || []).filter((x) => x.role === ROLE.MEMBER || x.role === ROLE.SECOND_MANAGER || x.role === ROLE.SUPER_ADMIN);
+    }
+
+    function goToApp() {
+      el.authSection.classList.add('hidden');
+      el.appSection.classList.remove('hidden');
+      renderAll();
+    }
+
+    function applyLanguage(lang) {
+      currentLanguage = lang || 'ar';
+      document.documentElement.lang = currentLanguage;
+      document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+      document.body.classList.toggle('ltr', currentLanguage === 'en');
+      el.userLangLabel.textContent = currentLanguage === 'ar' ? 'العربية' : 'English';
+      const i18nEls = document.querySelectorAll('[data-i18n]');
+      i18nEls.forEach((node) => {
+        const key = node.getAttribute('data-i18n');
+        if (dict[currentLanguage]?.[key]) node.textContent = dict[currentLanguage][key];
+      });
+      el.memberAdminBtn.textContent = currentLanguage === 'ar' ? 'إدارة الأعضاء' : 'Manage members';
+      el.profileBtn.textContent = currentLanguage === 'ar' ? 'إدارة الملف الشخصي' : 'Profile';
+      el.reloadBtn.textContent = currentLanguage === 'ar' ? 'إعادة تحميل' : 'Reload';
+      el.logoutBtn.textContent = currentLanguage === 'ar' ? 'تسجيل الخروج' : 'Logout';
+      el.refreshResultsBtn.textContent = currentLanguage === 'ar' ? 'تحديث العرض' : 'Refresh';
+      el.searchInput.placeholder = currentLanguage === 'ar' ? 'ابحث باسم الصنف أو رقمه' : 'Search by code or name';
+      el.welcomeText.textContent = currentLanguage === 'ar' ? 'تم تسجيل الدخول بنجاح.' : 'Signed in successfully.';
+    }
+
+    function renderAll() {
+      applyLanguage(currentLanguage);
+      fillHeader();
+      renderQuickActions();
+      renderTabs();
+      renderResults();
+      renderSavedVarieties();
+      renderEvaluationOverview();
+      renderInventoryPanels();
+      renderMemberNotifications();
+    }
+
+    function fillHeader() {
+      el.mainHeaderTitle.textContent = currentLanguage === 'ar' ? 'نظام تقييم أصناف بذور التجارب' : 'Seed Variety Evaluation System';
+      el.mainHeaderText.innerHTML = currentLanguage === 'ar'
+        ? 'نظام متابعة الأصناف والتقييمات والمخزون والتوزيع.'
+        : 'Online system for varieties, evaluations, inventory and distribution.';
+      const displayName = currentProfile?.full_name || currentUser?.email || '-';
+      el.welcomeTitle.textContent = currentLanguage === 'ar' ? `مرحباً بك يا ${displayName}` : `Welcome, ${displayName}`;
+      el.userName.textContent = displayName;
+      el.userEmail.textContent = currentProfile?.email || currentUser?.email || '-';
+      el.userRole.textContent = roleLabel(currentProfile?.role);
+      el.userPillText.textContent = `${displayName} • ${roleLabel(currentProfile?.role)}`;
+      el.userAvatar.src = currentProfile?.avatar_url || DEFAULT_AVATAR;
+      el.memberAdminBtn.classList.toggle('hidden', !canManageAll());
+      el.memberAdminBtn.href = ADMIN_PAGE_URL;
+      el.quickActionsSection.classList.toggle('hidden', !canViewManagement());
+    }
+
+    function renderQuickActions() {
+      const cards = [];
+      if (canManageAll()) {
+        cards.push({ key: 'varieties', title: currentLanguage === 'ar' ? 'إدارة الأصناف' : 'Varieties', text: currentLanguage === 'ar' ? 'إضافة صنف جديد وفتح صفحة الصنف لإضافة زيارات.' : 'Add varieties and follow up visits.' });
+        cards.push({ key: 'stock', title: currentLanguage === 'ar' ? 'إدارة المخزون' : 'Inventory', text: currentLanguage === 'ar' ? 'مخزون البذور والكمية الواردة والتوزيع وخطابات التسليم.' : 'Seed inventory, incoming quantities and distribution.' });
+        cards.push({ key: 'evaluations', title: currentLanguage === 'ar' ? 'متابعة التقييمات' : 'Evaluations', text: currentLanguage === 'ar' ? 'معرفة من قيّم ومن لم يقيّم وفتح التقييم للتعديل.' : 'Track who evaluated and unlock records.' });
+        cards.push({ key: 'results', title: currentLanguage === 'ar' ? 'عرض النتائج' : 'Results', text: currentLanguage === 'ar' ? 'استعراض الأصناف والتقييمات والصور.' : 'Browse varieties, images and evaluations.' });
+      } else if (currentProfile?.role === ROLE.SECOND_MANAGER) {
+        cards.push({ key: 'results', title: currentLanguage === 'ar' ? 'عرض الأصناف' : 'View varieties', text: currentLanguage === 'ar' ? 'استعراض الأصناف وزياراتها وصورها.' : 'Browse varieties, visits and media.' });
+        cards.push({ key: 'evaluations', title: currentLanguage === 'ar' ? 'متابعة التقييمات' : 'Evaluation status', text: currentLanguage === 'ar' ? 'معرفة من قام بالتقييم ومن لم يقم.' : 'See who evaluated and who did not.' });
+        cards.push({ key: 'stock', title: currentLanguage === 'ar' ? 'المخزون والتوزيع' : 'Inventory & distribution', text: currentLanguage === 'ar' ? 'عرض المخزون الحالي وسجل التوزيع.' : 'View current stock and distribution records.' });
+      } else {
+        cards.push({ key: 'results', title: currentLanguage === 'ar' ? 'الأصناف المتاحة' : 'Available varieties', text: currentLanguage === 'ar' ? 'شاهد الأصناف المضافة وقم بتقييم ما تريد.' : 'Review available varieties and submit your evaluation.' });
+      }
+      el.quickActionsGrid.innerHTML = cards.map((card) => `
+        <button class="quick-card" type="button" data-go-panel="${card.key}">
+          <strong>${escapeHtml(card.title)}</strong>
+          <span>${escapeHtml(card.text)}</span>
+        </button>
+      `).join('');
+    }
+
+    function renderTabs() {
+      const tabs = [{ id: 'results', label: currentLanguage === 'ar' ? 'عرض النتائج' : 'Results' }];
+      if (canManageAll()) tabs.push({ id: 'varieties', label: currentLanguage === 'ar' ? 'إدارة الأصناف' : 'Manage varieties' });
+      if (canViewManagement()) tabs.push({ id: 'evaluations', label: currentLanguage === 'ar' ? 'التقييمات' : 'Evaluations' });
+      if (canViewManagement()) tabs.push({ id: 'stock', label: currentLanguage === 'ar' ? 'المخزون والتوزيع' : 'Inventory' });
+      el.tabBar.innerHTML = tabs.map((tab, idx) => `<button class="tab-btn ${idx===0?'active':''}" type="button" data-panel="${tab.id}">${escapeHtml(tab.label)}</button>`).join('');
+      document.querySelectorAll('.section-panel').forEach((panel, idx) => {
+        if (idx === 0) panel.classList.add('active');
+        else panel.classList.remove('active');
+      });
+      const panelIds = tabs.map((t) => `panel-${t.id}`);
+      document.querySelectorAll('.section-panel').forEach((panel) => {
+        panel.classList.toggle('hidden', !panelIds.includes(panel.id));
+      });
+      showPanel('results');
+    }
+
+    function showPanel(id) {
+      document.querySelectorAll('.tab-btn[data-panel]').forEach((btn) => btn.classList.toggle('active', btn.dataset.panel === id));
+      document.querySelectorAll('.section-panel').forEach((panel) => panel.classList.toggle('active', panel.id === `panel-${id}`));
+    }
+
+    function getVarietyAggregate(item) {
+      const itemEvaluations = evaluations.filter((x) => x.variety_id === item.id);
+      const memberOnly = members.filter((m) => m.role === ROLE.MEMBER);
+      const evaluatedIds = new Set(itemEvaluations.map((x) => x.evaluator_id));
+      return {
+        totalEvaluations: itemEvaluations.length,
+        pendingMembers: memberOnly.filter((m) => !evaluatedIds.has(m.id)),
+        itemEvaluations
+      };
+    }
+
+    function visibleVarieties() {
+      return varieties.filter((item) => item.is_active !== false);
+    }
+
+    function renderResults() {
+      const q = el.searchInput.value.trim().toLowerCase();
+      const items = visibleVarieties().filter((item) => {
+        const hay = [item.variety_code, item.variety_name, item.crop_type].join(' ').toLowerCase();
+        return !q || hay.includes(q);
+      });
+      if (!items.length) {
+        el.resultsList.innerHTML = `<div class="empty">${currentLanguage === 'ar' ? 'لا توجد أصناف متاحة حالياً.' : 'No varieties available.'}</div>`;
+        return;
+      }
+      el.resultsList.innerHTML = items.map((item) => {
+        const firstVisit = item.visits?.[0];
+        const agg = getVarietyAggregate(item);
+        const ownEvaluation = evaluations.find((x) => x.variety_id === item.id && x.evaluator_id === currentUser?.id);
+        const canSeeManagementMeta = canViewManagement();
+        return `
+          <div class="result-card">
+            <div class="item-head">
+              <div>
+                <h3>${escapeHtml(item.variety_name || '-')}</h3>
+                <div class="meta-line">
+                  <span class="badge">${escapeHtml(item.variety_code || '-')}</span>
+                  <span class="badge muted">${escapeHtml(item.crop_type || '-')}</span>
+                  <span class="badge muted">${escapeHtml(item.growing_type_label || growingTypeLabel(item.growing_type))}</span>
+                </div>
+              </div>
+              <div class="inline-actions">
+                <button class="btn-secondary" type="button" onclick="window.openVarietyDetails('${item.id}')">${currentLanguage === 'ar' ? 'فتح الصنف' : 'Open variety'}</button>
+                ${canMemberEvaluate() ? `<button class="btn-primary" type="button" onclick="window.openEvaluationModal('${item.id}')">${ownEvaluation ? (currentLanguage === 'ar' ? 'عرض تقييمي' : 'View my evaluation') : (currentLanguage === 'ar' ? 'تقييم الصنف' : 'Evaluate')}</button>` : ''}
+              </div>
+            </div>
+            <div class="detail-grid">
+              <div class="detail-box"><span>${currentLanguage === 'ar' ? 'الشركة المنتجة' : 'Producer'}</span><strong>${escapeHtml(item.producer_company || '-')}</strong></div>
+              <div class="detail-box"><span>${currentLanguage === 'ar' ? 'عدد الزيارات' : 'Visits'}</span><strong>${item.visits?.length || 0}</strong></div>
+              <div class="detail-box"><span>${currentLanguage === 'ar' ? 'آخر زيارة' : 'Last visit'}</span><strong>${formatDate(firstVisit?.visit_date || item.visits?.[0]?.visit_date)}</strong></div>
+              <div class="detail-box"><span>${currentLanguage === 'ar' ? 'حالة التقييم' : 'Evaluation status'}</span><strong>${canMemberEvaluate() ? (ownEvaluation ? (currentLanguage === 'ar' ? 'تم تقييمه' : 'Evaluated') : (currentLanguage === 'ar' ? 'لم يتم التقييم' : 'Not evaluated')) : `${agg.totalEvaluations}`}</strong></div>
+            </div>
+            ${canSeeManagementMeta ? `
+              <div class="inline-actions" style="margin-top:12px;">
+                <span class="badge">${currentLanguage === 'ar' ? `تم التقييم: ${agg.totalEvaluations}` : `Evaluations: ${agg.totalEvaluations}`}</span>
+                <span class="badge warn">${currentLanguage === 'ar' ? `متبقٍ: ${agg.pendingMembers.length}` : `Pending: ${agg.pendingMembers.length}`}</span>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function growingTypeLabel(value) {
+      if (value === 'protected') return currentLanguage === 'ar' ? 'بيت محمي' : 'Protected';
+      if (value === 'open_field') return currentLanguage === 'ar' ? 'خارجي' : 'Open field';
+      return '-';
+    }
+
+    function startMethodLabel(value) {
+      if (value === 'nursery') return currentLanguage === 'ar' ? 'تشتيل' : 'Nursery';
+      if (value === 'direct') return currentLanguage === 'ar' ? 'زراعة مباشرة' : 'Direct sowing';
+      return '-';
+    }
+
+    function renderSavedVarieties() {
+      if (!canManageAll()) return;
+      const items = visibleVarieties();
+      if (!items.length) {
+        el.savedVarietiesList.innerHTML = `<div class="empty">${currentLanguage === 'ar' ? 'لا توجد أصناف محفوظة.' : 'No saved varieties.'}</div>`;
+        return;
+      }
+      el.savedVarietiesList.innerHTML = items.map((item) => `
+        <div class="item-card">
+          <div class="item-head">
+            <div>
+              <h3>${escapeHtml(item.variety_name)}</h3>
+              <div class="meta-line">
+                <span class="badge">${escapeHtml(item.variety_code || '-')}</span>
+                <span class="badge muted">${escapeHtml(item.crop_type || '-')}</span>
+                <span class="badge muted">${growingTypeLabel(item.growing_type)}</span>
+              </div>
+            </div>
+            <div class="inline-actions">
+              <button class="btn-secondary" type="button" onclick="window.openVarietyDetails('${item.id}')">${currentLanguage === 'ar' ? 'فتح الصنف' : 'Open variety'}</button>
+              <button class="btn-danger" type="button" onclick="window.archiveVariety('${item.id}')">${currentLanguage === 'ar' ? 'إخفاء الصنف' : 'Archive'}</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderEvaluationOverview() {
+      if (!canViewManagement()) return;
+      const items = visibleVarieties();
+      if (!items.length) {
+        el.evaluationsOverview.innerHTML = `<div class="empty">${currentLanguage === 'ar' ? 'لا توجد أصناف لمتابعة التقييمات.' : 'No varieties to track.'}</div>`;
+        return;
+      }
+      const memberOnly = members.filter((m) => m.role === ROLE.MEMBER);
+      el.evaluationsOverview.innerHTML = items.map((item) => {
+        const itemEvaluations = evaluations.filter((x) => x.variety_id === item.id);
+        const evaluatedBy = new Set(itemEvaluations.map((x) => x.evaluator_id));
+        return `
+          <div class="evaluation-card">
+            <div class="item-head">
+              <div>
+                <h3>${escapeHtml(item.variety_name)}</h3>
+                <div class="meta-line">
+                  <span class="badge">${escapeHtml(item.variety_code || '-')}</span>
+                  <span class="badge warn">${currentLanguage === 'ar' ? `تم التقييم: ${itemEvaluations.length}` : `Evaluated: ${itemEvaluations.length}`}</span>
+                </div>
+              </div>
+              <div class="inline-actions">
+                <button class="btn-secondary" type="button" onclick="window.openVarietyDetails('${item.id}')">${currentLanguage === 'ar' ? 'فتح الصنف' : 'Open variety'}</button>
+              </div>
+            </div>
+            <div class="member-list">
+              ${memberOnly.map((member) => {
+                const memberEval = itemEvaluations.find((x) => x.evaluator_id === member.id);
+                return `
+                  <div class="member-card">
+                    <div class="item-head">
+                      <div>
+                        <strong>${escapeHtml(member.full_name || member.email || '-')}</strong>
+                        <div class="meta-line">
+                          <span class="badge ${memberEval ? '' : 'warn'}">${memberEval ? (currentLanguage === 'ar' ? 'تم التقييم' : 'Evaluated') : (currentLanguage === 'ar' ? 'لم يتم التقييم' : 'Pending')}</span>
+                          ${memberEval?.is_locked ? `<span class="badge muted">${currentLanguage === 'ar' ? 'مقفل' : 'Locked'}</span>` : ''}
+                        </div>
+                      </div>
+                      ${canManageAll() && memberEval ? `
+                        <div class="inline-actions">
+                          <button class="btn-secondary" type="button" onclick="window.toggleEvaluationLock('${memberEval.id}', ${memberEval.is_locked ? 'false' : 'true'})">${memberEval.is_locked ? (currentLanguage === 'ar' ? 'فتح للتعديل' : 'Unlock') : (currentLanguage === 'ar' ? 'قفل' : 'Lock')}</button>
+                          <button class="btn-danger" type="button" onclick="window.deleteEvaluation('${memberEval.id}')">${currentLanguage === 'ar' ? 'حذف' : 'Delete'}</button>
+                        </div>
+                      ` : ''}
+                    </div>
+                    ${memberEval ? `<div class="notes">${escapeHtml(memberEval.market_notes || '')}</div>` : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function getStockBalance(seedId) {
+      const totalIn = stockIns.filter((x) => x.seed_id === seedId).reduce((s, x) => s + Number(x.quantity || 0), 0);
+      const totalOut = distributions.filter((x) => x.seed_id === seedId).reduce((s, x) => s + Number(x.quantity || 0), 0);
+      return totalIn - totalOut;
+    }
+
+    function renderInventoryPanels() {
+      if (!canViewManagement()) return;
+      fillStockSelects();
+      if (!inventorySeeds.length) {
+        el.stockMasterList.innerHTML = `<div class="empty">${currentLanguage === 'ar' ? 'لا توجد أصناف مخزون مضافة.' : 'No inventory seeds yet.'}</div>`;
+      } else {
+        el.stockMasterList.innerHTML = inventorySeeds.map((seed) => `
+          <div class="stock-card">
+            <div class="item-head">
+              <div>
+                <h3>${escapeHtml(seed.variety_name)}</h3>
+                <div class="meta-line">
+                  <span class="badge">${escapeHtml(seed.variety_code || '-')}</span>
+                  <span class="badge muted">${escapeHtml(seed.crop_type || '-')}</span>
+                  <span class="badge warn">${currentLanguage === 'ar' ? `المتبقي: ${getStockBalance(seed.id)}` : `Balance: ${getStockBalance(seed.id)}`}</span>
+                </div>
+              </div>
+              ${seed.technical_sheet_url ? `<a class="btn-secondary" target="_blank" rel="noopener" href="${seed.technical_sheet_url}">${currentLanguage === 'ar' ? 'فتح النشرة الفنية' : 'Technical sheet'}</a>` : ''}
+            </div>
+          </div>
+        `).join('');
+      }
+      el.stockInList.innerHTML = stockIns.length ? stockIns.map((row) => `
+        <div class="timeline-card">
+          <strong>${escapeHtml(seedName(row.seed_id))}</strong>
+          <div class="meta-line">
+            <span class="badge">${currentLanguage === 'ar' ? `كمية واردة: ${row.quantity}` : `In: ${row.quantity}`}</span>
+            <span class="badge muted">${formatDate(row.movement_date)}</span>
+          </div>
+          <div class="notes">${escapeHtml(row.notes || '-')}</div>
+        </div>`).join('') : `<div class="empty">${currentLanguage === 'ar' ? 'لا توجد كميات واردة مسجلة.' : 'No incoming records.'}</div>`;
+      el.distributionList.innerHTML = distributions.length ? distributions.map((row) => `
+        <div class="timeline-card">
+          <strong>${escapeHtml(seedName(row.seed_id))}</strong>
+          <div class="meta-line">
+            <span class="badge warn">${currentLanguage === 'ar' ? `كمية موزعة: ${row.quantity}` : `Out: ${row.quantity}`}</span>
+            <span class="badge muted">${escapeHtml(row.branch_name || '-')}</span>
+            <span class="badge muted">${escapeHtml(row.receiver_name || '-')}</span>
+            <span class="badge muted">${formatDate(row.movement_date)}</span>
+          </div>
+        </div>`).join('') : `<div class="empty">${currentLanguage === 'ar' ? 'لا توجد توزيعات مسجلة.' : 'No distribution records.'}</div>`;
+      const letters = [...distributions.filter((x) => x.letter_url), ...inventorySeeds.filter((x) => x.technical_sheet_url).map((seed) => ({
+        id: `sheet-${seed.id}`,
+        title: `${currentLanguage === 'ar' ? 'النشرة الفنية' : 'Technical sheet'} - ${seed.variety_name}`,
+        letter_url: seed.technical_sheet_url,
+        movement_date: seed.created_at,
+        meta: seed.variety_code
+      }))];
+      el.deliveryLettersList.innerHTML = letters.length ? letters.map((row) => `
+        <div class="letter-card">
+          <div class="item-head">
+            <div>
+              <strong>${escapeHtml(row.title || `${currentLanguage === 'ar' ? 'خطاب تسليم' : 'Delivery letter'} - ${seedName(row.seed_id)}`)}</strong>
+              <div class="meta-line">
+                <span class="badge muted">${row.meta ? escapeHtml(row.meta) : ''}</span>
+                <span class="badge muted">${formatDate(row.movement_date)}</span>
+              </div>
+            </div>
+            <a class="btn-secondary" target="_blank" rel="noopener" href="${row.letter_url}">${currentLanguage === 'ar' ? 'فتح الملف' : 'Open file'}</a>
+          </div>
+        </div>`).join('') : `<div class="empty">${currentLanguage === 'ar' ? 'لا توجد خطابات أو نشرات مرفوعة.' : 'No uploaded letters or sheets.'}</div>`;
+    }
+
+    function seedName(seedId) {
+      const seed = inventorySeeds.find((x) => x.id === seedId);
+      return seed ? `${seed.variety_name} (${seed.variety_code || '-'})` : '-';
+    }
+
+    function fillStockSelects() {
+      const options = ['<option value="">' + (currentLanguage === 'ar' ? 'اختر الصنف' : 'Select seed') + '</option>']
+        .concat(inventorySeeds.map((seed) => `<option value="${seed.id}">${escapeHtml(seed.variety_code || '')} - ${escapeHtml(seed.variety_name || '')}</option>`));
+      el.stockInSeedId.innerHTML = options.join('');
+      el.distributionSeedId.innerHTML = options.join('');
+    }
+
+    function renderMemberNotifications() {
+      if (!canMemberEvaluate()) {
+        el.memberNotifications.classList.add('hidden');
+        return;
+      }
+      const pending = visibleVarieties().filter((item) => !evaluations.some((x) => x.variety_id === item.id && x.evaluator_id === currentUser.id));
+      if (!pending.length) {
+        el.memberNotifications.classList.remove('hidden');
+        el.memberNotifications.textContent = currentLanguage === 'ar' ? 'لا توجد أصناف بانتظار تقييمك حالياً.' : 'No varieties pending your evaluation.';
+      } else {
+        el.memberNotifications.classList.remove('hidden');
+        el.memberNotifications.textContent = currentLanguage === 'ar'
+          ? `لديك ${pending.length} صنف / أصناف لم يتم تقييمها بعد.`
+          : `You have ${pending.length} pending variety evaluations.`;
+      }
+    }
+
+    function toggleStartMethod() {
+      const selected = document.querySelector('input[name="startMethod"]:checked')?.value || '';
+      el.nurseryDateWrap.classList.toggle('hidden', selected !== 'nursery');
+      el.transplantDateWrap.classList.toggle('hidden', selected !== 'nursery');
+      el.directDateWrap.classList.toggle('hidden', selected !== 'direct');
+    }
+
+    function resetVarietyForm() {
+      ['varietyCode','varietyName','cropType','producerCompany','locationName','nurseryDate','transplantDate','directPlantDate','firstVisitDate','firstVisitNotes'].forEach((id) => el[id].value = '');
+      el.growingType.value = '';
+      el.firstVisitMedia.value = '';
+      document.querySelectorAll('input[name="startMethod"]').forEach((x) => x.checked = false);
+      toggleStartMethod();
+      clearBox(el.varietyFormMessage);
+    }
+
+    async function saveVariety() {
+      clearBox(el.varietyFormMessage);
+      const startMethod = document.querySelector('input[name="startMethod"]:checked')?.value || '';
+      const payload = {
+        variety_code: el.varietyCode.value.trim(),
+        variety_name: el.varietyName.value.trim(),
+        crop_type: el.cropType.value.trim(),
+        producer_company: el.producerCompany.value.trim(),
+        growing_type: el.growingType.value,
+        growing_type_label: growingTypeLabel(el.growingType.value),
+        location_name: el.locationName.value.trim(),
+        start_method: startMethod,
+        nursery_date: el.nurseryDate.value || null,
+        transplant_date: el.transplantDate.value || null,
+        direct_plant_date: el.directPlantDate.value || null,
+        created_by: currentUser.id,
+        is_active: true
+      };
+      if (!payload.variety_code || !payload.variety_name || !payload.crop_type || !payload.growing_type || !startMethod) {
+        showBox(el.varietyFormMessage, 'err', currentLanguage === 'ar' ? 'أكمل الحقول الأساسية للصنف.' : 'Complete the required variety fields.');
+        return;
+      }
+      if (!el.firstVisitDate.value) {
+        showBox(el.varietyFormMessage, 'err', currentLanguage === 'ar' ? 'أدخل تاريخ الزيارة الأولى.' : 'Enter the first visit date.');
+        return;
+      }
+      try {
+        el.saveVarietyBtn.disabled = true;
+        const { data: inserted, error } = await supabase.from('varieties').insert(payload).select('*').single();
+        if (error) throw error;
+        const { data: visit, error: visitError } = await supabase.from('variety_visits').insert({
+          variety_id: inserted.id,
+          visit_date: el.firstVisitDate.value,
+          notes: el.firstVisitNotes.value.trim(),
+          created_by: currentUser.id
+        }).select('*').single();
+        if (visitError) throw visitError;
+        const files = Array.from(el.firstVisitMedia.files || []);
+        for (const file of files) {
+          const path = `${inserted.id}/${visit.id}/${Date.now()}_${file.name}`;
+          const url = await uploadFile(MEDIA_BUCKET, path, file);
+          const mediaType = file.type.startsWith('video/') ? 'video' : 'image';
+          const { error: mediaError } = await supabase.from('variety_visit_media').insert({
+            variety_id: inserted.id,
+            visit_id: visit.id,
+            media_type: mediaType,
+            file_name: file.name,
+            file_url: url,
+            storage_path: path,
+            created_by: currentUser.id
+          });
+          if (mediaError) throw mediaError;
+        }
+        await hydrateData();
+        renderAll();
+        resetVarietyForm();
+        showBox(el.varietyFormMessage, 'ok', currentLanguage === 'ar' ? 'تم حفظ الصنف والزيارة الأولى بنجاح.' : 'Variety and first visit saved successfully.');
+      } catch (err) {
+        showBox(el.varietyFormMessage, 'err', escapeHtml(err.message || 'Save failed'));
+      } finally {
+        el.saveVarietyBtn.disabled = false;
+      }
+    }
+
+    async function saveStockMaster() {
+      clearBox(el.stockMasterMessage);
+      const variety_code = el.stockVarietyCode.value.trim();
+      const variety_name = el.stockVarietyName.value.trim();
+      const crop_type = el.stockCropType.value.trim();
+      if (!variety_code || !variety_name || !crop_type) {
+        showBox(el.stockMasterMessage, 'err', currentLanguage === 'ar' ? 'أكمل بيانات المخزون الأساسية.' : 'Complete stock master fields.');
+        return;
+      }
+      try {
+        let technical_sheet_url = null;
+        let technical_sheet_path = null;
+        const file = el.stockTechnicalSheet.files?.[0];
+        if (file) {
+          technical_sheet_path = `technical/${Date.now()}_${file.name}`;
+          technical_sheet_url = await uploadFile(DOC_BUCKET, technical_sheet_path, file);
+        }
+        const { error } = await supabase.from('seed_inventory').insert({
+          variety_code, variety_name, crop_type, technical_sheet_url, technical_sheet_path, created_by: currentUser.id
+        });
+        if (error) throw error;
+        ['stockVarietyCode','stockVarietyName','stockCropType'].forEach((id) => el[id].value = '');
+        el.stockTechnicalSheet.value = '';
+        await hydrateData();
+        renderInventoryPanels();
+        showBox(el.stockMasterMessage, 'ok', currentLanguage === 'ar' ? 'تم حفظ الصنف في المخزون.' : 'Seed saved to inventory.');
+      } catch (err) {
+        showBox(el.stockMasterMessage, 'err', escapeHtml(err.message || 'Save failed'));
+      }
+    }
+
+    async function saveStockIn() {
+      clearBox(el.stockInMessage);
+      const seed_id = el.stockInSeedId.value;
+      const quantity = Number(el.stockInQuantity.value || 0);
+      if (!seed_id || quantity <= 0 || !el.stockInDate.value) {
+        showBox(el.stockInMessage, 'err', currentLanguage === 'ar' ? 'أكمل بيانات الكمية الواردة.' : 'Complete incoming quantity fields.');
+        return;
+      }
+      try {
+        const seed = inventorySeeds.find((x) => x.id === seed_id);
+        const { error } = await supabase.from('stock_movements').insert({
+          seed_id,
+          movement_type: 'in',
+          quantity,
+          movement_date: el.stockInDate.value,
+          notes: `${el.stockInNotes.value.trim()} | ${seed?.crop_type || ''}`,
+          created_by: currentUser.id
+        });
+        if (error) throw error;
+        ['stockInQuantity','stockInDate','stockInNotes'].forEach((id) => el[id].value = '');
+        el.stockInSeedId.value = '';
+        await hydrateData();
+        renderInventoryPanels();
+        showBox(el.stockInMessage, 'ok', currentLanguage === 'ar' ? 'تم حفظ الكمية الواردة.' : 'Incoming stock saved.');
+      } catch (err) {
+        showBox(el.stockInMessage, 'err', escapeHtml(err.message || 'Save failed'));
+      }
+    }
+
+    async function saveDistribution() {
+      clearBox(el.distributionMessage);
+      const seed_id = el.distributionSeedId.value;
+      const quantity = Number(el.distributionQuantity.value || 0);
+      const balance = getStockBalance(seed_id);
+      if (!seed_id || quantity <= 0 || !el.distributionDate.value || !el.distributionBranch.value.trim()) {
+        showBox(el.distributionMessage, 'err', currentLanguage === 'ar' ? 'أكمل بيانات التوزيع.' : 'Complete distribution fields.');
+        return;
+      }
+      if (quantity > balance) {
+        showBox(el.distributionMessage, 'err', currentLanguage === 'ar' ? 'الكمية الموزعة أكبر من المتبقي في المخزون.' : 'Quantity exceeds available stock.');
+        return;
+      }
+      try {
+        let letter_url = null;
+        let letter_path = null;
+        const file = el.distributionLetter.files?.[0];
+        if (file) {
+          letter_path = `letters/${Date.now()}_${file.name}`;
+          letter_url = await uploadFile(DOC_BUCKET, letter_path, file);
+        }
+        const { data: movement, error } = await supabase.from('stock_movements').insert({
+          seed_id,
+          movement_type: 'out',
+          quantity,
+          movement_date: el.distributionDate.value,
+          branch_name: el.distributionBranch.value.trim(),
+          receiver_name: el.distributionReceiver.value.trim(),
+          letter_url,
+          letter_path,
+          created_by: currentUser.id
+        }).select('*').single();
+        if (error) throw error;
+        if (letter_url) {
+          const { error: letterError } = await supabase.from('delivery_letters').insert({
+            stock_movement_id: movement.id,
+            seed_id,
+            title: `${currentLanguage === 'ar' ? 'خطاب تسليم' : 'Delivery letter'} - ${seedName(seed_id)}`,
+            letter_url,
+            letter_path,
+            created_by: currentUser.id
+          });
+          if (letterError) throw letterError;
+        }
+        ['distributionQuantity','distributionBranch','distributionReceiver','distributionDate'].forEach((id) => el[id].value = '');
+        el.distributionSeedId.value = '';
+        el.distributionLetter.value = '';
+        await hydrateData();
+        renderInventoryPanels();
+        showBox(el.distributionMessage, 'ok', currentLanguage === 'ar' ? 'تم حفظ التوزيع.' : 'Distribution saved.');
+      } catch (err) {
+        showBox(el.distributionMessage, 'err', escapeHtml(err.message || 'Save failed'));
+      }
+    }
+
+    async function archiveVariety(id) {
+      if (!canManageAll()) return;
+      const ok = confirm(currentLanguage === 'ar' ? 'هل تريد إخفاء هذا الصنف؟' : 'Archive this variety?');
+      if (!ok) return;
+      const { error } = await supabase.from('varieties').update({ is_active: false }).eq('id', id);
+      if (error) { showBox(el.appMessage, 'err', escapeHtml(error.message)); return; }
+      await hydrateData();
+      renderAll();
+    }
+
+    async function toggleEvaluationLock(id, is_locked) {
+      if (!canManageAll()) return;
+      const { error } = await supabase.from('variety_evaluations').update({ is_locked }).eq('id', id);
+      if (error) { showBox(el.appMessage, 'err', escapeHtml(error.message)); return; }
+      await hydrateData();
+      renderEvaluationOverview();
+      renderResults();
+    }
+
+    async function deleteEvaluation(id) {
+      if (!canManageAll()) return;
+      const ok = confirm(currentLanguage === 'ar' ? 'هل تريد حذف هذا التقييم؟' : 'Delete this evaluation?');
+      if (!ok) return;
+      const { error } = await supabase.from('variety_evaluations').delete().eq('id', id);
+      if (error) { showBox(el.appMessage, 'err', escapeHtml(error.message)); return; }
+      await hydrateData();
+      renderEvaluationOverview();
+      renderResults();
+    }
+
+    async function saveProfile() {
+      clearBox(el.profileMessage);
+      try {
+        const updates = {};
+        if (canManageAll()) updates.phone = el.profilePhone.value.trim();
+        if (currentProfile?.role !== ROLE.MEMBER || true) updates.language = el.profileLanguage.value;
+        const avatarFile = el.profileAvatarFile.files?.[0];
+        if (avatarFile) {
+          const path = `${currentUser.id}/${Date.now()}_${avatarFile.name}`;
+          updates.avatar_url = await uploadFile(AVATAR_BUCKET, path, avatarFile);
+        }
+        if (Object.keys(updates).length) {
+          const { error: profileError } = await supabase.from('profiles').update(updates).eq('id', currentUser.id);
+          if (profileError) throw profileError;
+        }
+        const currentPassword = el.currentPassword.value.trim();
+        const newPassword = el.newPassword.value.trim();
+        const confirmPassword = el.confirmNewPassword.value.trim();
+        if (newPassword || confirmPassword || currentPassword) {
+          if (!currentPassword) throw new Error(currentLanguage === 'ar' ? 'أدخل كلمة المرور الحالية.' : 'Enter current password.');
+          if (newPassword.length < 6) throw new Error(currentLanguage === 'ar' ? 'كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل.' : 'Password must be at least 6 characters.');
+          if (newPassword !== confirmPassword) throw new Error(currentLanguage === 'ar' ? 'كلمتا المرور غير متطابقتين.' : 'Passwords do not match.');
+          const verifyClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+          const { error: verifyError } = await verifyClient.auth.signInWithPassword({ email: currentProfile.email, password: currentPassword });
+          if (verifyError) throw new Error(currentLanguage === 'ar' ? 'كلمة المرور الحالية غير صحيحة.' : 'Current password is incorrect.');
+          const { error: updatePasswordError } = await supabase.auth.updateUser({ password: newPassword });
+          if (updatePasswordError) throw updatePasswordError;
+        }
+        await loadProfileStrict(currentUser.id);
+        renderAll();
+        el.profileAvatarFile.value = '';
+        ['profilePhone','currentPassword','newPassword','confirmNewPassword'].forEach((id) => { if (el[id]) el[id].value = ''; });
+        showBox(el.profileMessage, 'ok', currentLanguage === 'ar' ? 'تم حفظ الملف الشخصي.' : 'Profile updated.');
+      } catch (err) {
+        showBox(el.profileMessage, 'err', escapeHtml(err.message || 'Profile update failed'));
+      }
+    }
+
+    function openProfileModal() {
+      clearBox(el.profileMessage);
+      const isSuper = canManageAll();
+      el.profileModalTitle.textContent = currentLanguage === 'ar' ? 'إدارة الملف الشخصي' : 'Profile management';
+      el.phoneWrap.classList.toggle('hidden', !isSuper);
+      el.languageWrap.classList.remove('hidden');
+      el.profilePhone.value = currentProfile?.phone || '';
+      el.profileLanguage.value = currentProfile?.language || 'ar';
+      el.currentPassword.value = '';
+      el.newPassword.value = '';
+      el.confirmNewPassword.value = '';
+      el.profileAvatarFile.value = '';
+      openModal('profileModal');
+    }
+
+    function buildEvaluationForm(item, ownEvaluation) {
+      const locked = Boolean(ownEvaluation?.is_locked);
+      return `
+        <div class="card" style="margin-top:16px;">
+          <h3 class="section-title" style="font-size:18px;">${currentLanguage === 'ar' ? 'تقييم الصنف' : 'Variety evaluation'}</h3>
+          ${locked ? `<div class="alert warn">${currentLanguage === 'ar' ? 'تم إرسال تقييمك سابقًا ولا يمكن تعديله إلا بإذن المدير الكامل.' : 'Your evaluation is locked and can only be changed by the super admin.'}</div>` : ''}
+          <div class="grid-2">
+            ${renderEvalField('market_need', currentLanguage === 'ar' ? 'مطلوب في السوق' : 'Market fit', ownEvaluation?.market_need, locked)}
+            ${renderEvalField('fruit_length', currentLanguage === 'ar' ? 'طول الثمرة' : 'Fruit length', ownEvaluation?.fruit_length, locked)}
+            ${renderEvalField('flowers', currentLanguage === 'ar' ? 'الأزهار' : 'Flowers', ownEvaluation?.flowers, locked)}
+            ${renderEvalField('fruit_shape', currentLanguage === 'ar' ? 'شكل الثمرة' : 'Fruit shape', ownEvaluation?.fruit_shape, locked)}
+            ${renderEvalField('leaf_shape', currentLanguage === 'ar' ? 'شكل الورقة' : 'Leaf shape', ownEvaluation?.leaf_shape, locked)}
+            ${renderEvalField('virus_resistance', currentLanguage === 'ar' ? 'مقاومة الفيروس' : 'Virus resistance', ownEvaluation?.virus_resistance, locked)}
+          </div>
+          <div class="field" style="margin-top:14px;">
+            <label for="marketNotes">${currentLanguage === 'ar' ? 'ملاحظات التقييم' : 'Evaluation notes'}</label>
+            <textarea id="marketNotes" ${locked ? 'disabled' : ''}>${escapeHtml(ownEvaluation?.market_notes || '')}</textarea>
+          </div>
+          ${!locked ? `<div class="actions"><button class="btn-primary" type="button" onclick="window.submitEvaluation('${item.id}', '${ownEvaluation?.id || ''}')">${currentLanguage === 'ar' ? 'حفظ التقييم' : 'Save evaluation'}</button></div>` : ''}
+          <div id="evaluationMessage"></div>
+        </div>
+      `;
+    }
+
+    function renderEvalField(key, label, value, locked) {
+      return `
+        <div class="field">
+          <label for="${key}">${escapeHtml(label)}</label>
+          <select id="${key}" ${locked ? 'disabled' : ''}>
+            ${['', 'ممتاز', 'جيد جدا', 'جيد', 'ضعيف'].map((option) => {
+              const display = currentLanguage === 'ar' ? (option || 'اختر') : (option === '' ? 'Select' : option);
+              return `<option value="${option}" ${value === option ? 'selected' : ''}>${display}</option>`;
+            }).join('')}
+          </select>
+        </div>
+      `;
+    }
+
+    function buildVarietyDetailsHtml(item) {
+      const ownEvaluation = evaluations.find((x) => x.variety_id === item.id && x.evaluator_id === currentUser?.id);
+      const itemEvaluations = evaluations.filter((x) => x.variety_id === item.id);
+      const canSeeInternalLocation = canViewManagement();
+      return `
+        <div class="stack">
+          <div class="card">
+            <div class="item-head">
+              <div>
+                <h3>${escapeHtml(item.variety_name)}</h3>
+                <div class="meta-line">
+                  <span class="badge">${escapeHtml(item.variety_code || '-')}</span>
+                  <span class="badge muted">${escapeHtml(item.crop_type || '-')}</span>
+                  <span class="badge muted">${growingTypeLabel(item.growing_type)}</span>
+                  <span class="badge muted">${startMethodLabel(item.start_method)}</span>
+                </div>
+              </div>
+              ${canManageAll() ? `<button class="btn-primary" type="button" onclick="window.renderAddVisitForm('${item.id}')">${currentLanguage === 'ar' ? 'إضافة زيارة جديدة' : 'Add visit'}</button>` : ''}
+            </div>
+            <div class="detail-grid">
+              <div class="detail-box"><span>${currentLanguage === 'ar' ? 'الشركة المنتجة' : 'Producer'}</span><strong>${escapeHtml(item.producer_company || '-')}</strong></div>
+              <div class="detail-box"><span>${currentLanguage === 'ar' ? 'نوع الزراعة' : 'Growing type'}</span><strong>${growingTypeLabel(item.growing_type)}</strong></div>
+              <div class="detail-box"><span>${currentLanguage === 'ar' ? 'بداية الزراعة' : 'Start method'}</span><strong>${startMethodLabel(item.start_method)}</strong></div>
+              <div class="detail-box"><span>${currentLanguage === 'ar' ? 'عدد الزيارات' : 'Visits'}</span><strong>${item.visits?.length || 0}</strong></div>
+              ${canSeeInternalLocation ? `<div class="detail-box"><span>${currentLanguage === 'ar' ? 'مكان الزراعة' : 'Location'}</span><strong>${escapeHtml(item.location_name || '-')}</strong></div>` : ''}
+              ${canSeeInternalLocation && item.nursery_date ? `<div class="detail-box"><span>${currentLanguage === 'ar' ? 'تاريخ التشتيل' : 'Nursery date'}</span><strong>${formatDate(item.nursery_date)}</strong></div>` : ''}
+              ${canSeeInternalLocation && item.transplant_date ? `<div class="detail-box"><span>${currentLanguage === 'ar' ? 'تاريخ الزراعة في الأرض' : 'Transplant date'}</span><strong>${formatDate(item.transplant_date)}</strong></div>` : ''}
+              ${canSeeInternalLocation && item.direct_plant_date ? `<div class="detail-box"><span>${currentLanguage === 'ar' ? 'تاريخ الزراعة المباشرة' : 'Direct planting date'}</span><strong>${formatDate(item.direct_plant_date)}</strong></div>` : ''}
+            </div>
+          </div>
+
+          <div id="addVisitWrap"></div>
+
+          <div class="card">
+            <h3 class="section-title" style="font-size:18px;">${currentLanguage === 'ar' ? 'زيارات الصنف' : 'Variety visits'}</h3>
+            <div class="visit-list">
+              ${(item.visits || []).length ? item.visits.map((visit) => `
+                <div class="visit-card">
+                  <div class="item-head">
+                    <div>
+                      <strong>${currentLanguage === 'ar' ? 'تاريخ الزيارة' : 'Visit date'}: ${formatDate(visit.visit_date)}</strong>
+                    </div>
+                  </div>
+                  <div class="notes">${escapeHtml(visit.notes || '-')}</div>
+                  <div class="media-grid">
+                    ${(visit.media || []).length ? visit.media.map((media) => `
+                      <div class="media-card">
+                        ${media.media_type === 'video'
+                          ? `<video controls src="${media.file_url}"></video>`
+                          : `<img src="${media.file_url}" alt="visit media" />`}
+                      </div>
+                    `).join('') : `<div class="empty">${currentLanguage === 'ar' ? 'لا توجد وسائط لهذه الزيارة.' : 'No media for this visit.'}</div>`}
+                  </div>
+                </div>
+              `).join('') : `<div class="empty">${currentLanguage === 'ar' ? 'لا توجد زيارات مضافة بعد.' : 'No visits yet.'}</div>`}
+            </div>
+          </div>
+
+          ${canMemberEvaluate() ? buildEvaluationForm(item, ownEvaluation) : ''}
+
+          ${canViewManagement() ? `
+            <div class="card">
+              <h3 class="section-title" style="font-size:18px;">${currentLanguage === 'ar' ? 'التقييمات' : 'Evaluations'}</h3>
+              <div class="member-list">
+                ${itemEvaluations.length ? itemEvaluations.map((ev) => {
+                  const evaluator = members.find((m) => m.id === ev.evaluator_id);
+                  return `
+                    <div class="member-card">
+                      <div class="item-head">
+                        <div>
+                          <strong>${escapeHtml(evaluator?.full_name || evaluator?.email || '-')}</strong>
+                          <div class="meta-line">
+                            <span class="badge">${ev.is_locked ? (currentLanguage === 'ar' ? 'مقفل' : 'Locked') : (currentLanguage === 'ar' ? 'مفتوح' : 'Unlocked')}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="notes">${escapeHtml(ev.market_notes || '-')}</div>
+                    </div>
+                  `;
+                }).join('') : `<div class="empty">${currentLanguage === 'ar' ? 'لا توجد تقييمات بعد.' : 'No evaluations yet.'}</div>`}
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function openVarietyDetails(id) {
+      const item = varieties.find((x) => x.id === id);
+      if (!item) return;
+      el.varietyModalTitle.textContent = item.variety_name;
+      el.varietyModalBody.innerHTML = buildVarietyDetailsHtml(item);
+      openModal('varietyModal');
+    }
+
+    function renderAddVisitForm(id) {
+      const wrap = document.getElementById('addVisitWrap');
+      if (!wrap) return;
+      wrap.innerHTML = `
+        <div class="card">
+          <h3 class="section-title" style="font-size:18px;">${currentLanguage === 'ar' ? 'إضافة زيارة جديدة' : 'Add new visit'}</h3>
+          <div class="form-grid">
+            <div class="field">
+              <label for="extraVisitDate">${currentLanguage === 'ar' ? 'تاريخ الزيارة' : 'Visit date'}</label>
+              <input id="extraVisitDate" type="date" />
+            </div>
+            <div class="field full">
+              <label for="extraVisitNotes">${currentLanguage === 'ar' ? 'ملاحظات الزيارة' : 'Visit notes'}</label>
+              <textarea id="extraVisitNotes"></textarea>
+            </div>
+            <div class="field full">
+              <label for="extraVisitMedia">${currentLanguage === 'ar' ? 'صور / فيديوهات' : 'Images / videos'}</label>
+              <input id="extraVisitMedia" type="file" accept="image/*,video/*" multiple />
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn-primary" type="button" onclick="window.saveVisit('${id}')">${currentLanguage === 'ar' ? 'حفظ الزيارة' : 'Save visit'}</button>
+          </div>
+          <div id="extraVisitMessage"></div>
+        </div>
+      `;
+    }
+
+    async function saveVisit(varietyId) {
+      const msg = document.getElementById('extraVisitMessage');
+      const visitDate = document.getElementById('extraVisitDate').value;
+      const notes = document.getElementById('extraVisitNotes').value.trim();
+      const files = Array.from(document.getElementById('extraVisitMedia').files || []);
+      if (!visitDate) {
+        showBox(msg, 'err', currentLanguage === 'ar' ? 'أدخل تاريخ الزيارة.' : 'Enter visit date.');
+        return;
+      }
+      try {
+        const { data: visit, error } = await supabase.from('variety_visits').insert({
+          variety_id: varietyId,
+          visit_date: visitDate,
+          notes,
+          created_by: currentUser.id
+        }).select('*').single();
+        if (error) throw error;
+        for (const file of files) {
+          const path = `${varietyId}/${visit.id}/${Date.now()}_${file.name}`;
+          const url = await uploadFile(MEDIA_BUCKET, path, file);
+          const mediaType = file.type.startsWith('video/') ? 'video' : 'image';
+          const { error: mediaError } = await supabase.from('variety_visit_media').insert({
+            variety_id: varietyId,
+            visit_id: visit.id,
+            media_type: mediaType,
+            file_name: file.name,
+            file_url: url,
+            storage_path: path,
+            created_by: currentUser.id
+          });
+          if (mediaError) throw mediaError;
+        }
+        await hydrateData();
+        const item = varieties.find((x) => x.id === varietyId);
+        el.varietyModalBody.innerHTML = buildVarietyDetailsHtml(item);
+        renderResults();
+        renderSavedVarieties();
+        showBox(document.getElementById('extraVisitMessage'), 'ok', currentLanguage === 'ar' ? 'تمت إضافة الزيارة.' : 'Visit added.');
+      } catch (err) {
+        showBox(msg, 'err', escapeHtml(err.message || 'Visit save failed'));
+      }
+    }
+
+    function openEvaluationModal(id) {
+      openVarietyDetails(id);
+    }
+
+    async function submitEvaluation(varietyId, evaluationId) {
+      const target = document.getElementById('evaluationMessage');
+      clearBox(target);
+      const existing = evaluations.find((x) => x.variety_id === varietyId && x.evaluator_id === currentUser.id);
+      if (existing?.is_locked) {
+        showBox(target, 'err', currentLanguage === 'ar' ? 'تقييمك مقفل ولا يمكن تعديله.' : 'Your evaluation is locked.');
+        return;
+      }
+      const payload = {
+        variety_id: varietyId,
+        evaluator_id: currentUser.id,
+        market_need: document.getElementById('market_need').value,
+        fruit_length: document.getElementById('fruit_length').value,
+        flowers: document.getElementById('flowers').value,
+        fruit_shape: document.getElementById('fruit_shape').value,
+        leaf_shape: document.getElementById('leaf_shape').value,
+        virus_resistance: document.getElementById('virus_resistance').value,
+        market_notes: document.getElementById('marketNotes').value.trim(),
+        is_locked: true
+      };
+      try {
+        if (existing) {
+          const { error } = await supabase.from('variety_evaluations').update(payload).eq('id', existing.id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase.from('variety_evaluations').insert(payload);
+          if (error) throw error;
+        }
+        await hydrateData();
+        renderAll();
+        const item = varieties.find((x) => x.id === varietyId);
+        el.varietyModalBody.innerHTML = buildVarietyDetailsHtml(item);
+        showBox(document.getElementById('evaluationMessage'), 'ok', currentLanguage === 'ar' ? 'تم حفظ التقييم وإقفاله.' : 'Evaluation saved and locked.');
+      } catch (err) {
+        showBox(target, 'err', escapeHtml(err.message || 'Evaluation failed'));
+      }
+    }
+
+    document.addEventListener('click', (event) => {
+      const closeTarget = event.target.getAttribute('data-close-modal');
+      if (closeTarget) closeModal(closeTarget);
+      const panel = event.target.getAttribute('data-panel');
+      if (panel) showPanel(panel);
+      const goPanel = event.target.getAttribute('data-go-panel');
+      if (goPanel) showPanel(goPanel);
+      if (event.target.classList.contains('modal-overlay')) event.target.classList.remove('show');
+    });
+
+    document.querySelectorAll('input[name="startMethod"]').forEach((input) => input.addEventListener('change', toggleStartMethod));
+    el.loginBtn.addEventListener('click', login);
+    el.reloadBtn.addEventListener('click', reloadSession);
+    el.logoutBtn.addEventListener('click', logout);
+    el.profileBtn.addEventListener('click', openProfileModal);
+    el.saveProfileBtn.addEventListener('click', saveProfile);
+    el.searchInput.addEventListener('input', renderResults);
+    el.refreshResultsBtn.addEventListener('click', async () => { await hydrateData(); renderAll(); });
+    el.saveVarietyBtn.addEventListener('click', saveVariety);
+    el.resetVarietyBtn.addEventListener('click', resetVarietyForm);
+    el.saveStockMasterBtn.addEventListener('click', saveStockMaster);
+    el.saveStockInBtn.addEventListener('click', saveStockIn);
+    el.saveDistributionBtn.addEventListener('click', saveDistribution);
+    document.querySelectorAll('[data-stock-tab]').forEach((btn) => btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-stock-tab]').forEach((x) => x.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.stock-sub-panel').forEach((panel) => panel.classList.add('hidden'));
+      document.getElementById(btn.dataset.stockTab).classList.remove('hidden');
+    }));
+
+    window.openVarietyDetails = openVarietyDetails;
+    window.renderAddVisitForm = renderAddVisitForm;
+    window.saveVisit = saveVisit;
+    window.submitEvaluation = submitEvaluation;
+    window.openEvaluationModal = openEvaluationModal;
+    window.archiveVariety = archiveVariety;
+    window.toggleEvaluationLock = toggleEvaluationLock;
+    window.deleteEvaluation = deleteEvaluation;
+
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT') {
+        currentUser = null;
+        currentProfile = null;
+        stopInactivityWatcher();
+        clearLastActivity();
+        goToAuth();
+        return;
+      }
+      if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') && session?.user) {
+        currentUser = session.user;
+        setLastActivityNow();
+      }
+    });
+
+    boot();
+  </script>
+</body>
+</html>
